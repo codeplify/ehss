@@ -10,42 +10,40 @@ import UIKit
 import CoreData
 
 class hazardListVC: UITableViewController {
-
- 
-    var hazardArray:[hazardShort] = [hazardShort]()
+     var hazardArray:[hazardShort] = [hazardShort]()
     
     struct hazardShort{
-        
         var location: Int
         var name: String
-    
+        var id:Int
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context: NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "Hazard")
+        if self.revealViewController() != nil {
+            btnMenuList.target = self.revealViewController()
+            btnMenuList.action = "revealToggle:"
+            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
+        }
+        
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context: NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Hazard")
+        
         request.returnsObjectsAsFaults = false
-        //request.predicate = NSPredicate(format: "parent = %@",hd)
+    
         
-        //var hazard1 = hazardShort(location: "test 1", name: "test name 1")
-        //var hazard2 = hazardShort(location: "test 2", name: "test name 2")
-        
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         
         if results.count > 0 {
             
             for res in results {
-                var h:hazardShort? = hazardShort(location: (res.valueForKey("location") as? Int)!, name: (res.valueForKey("name") as? String)!)
+                let h:hazardShort? = hazardShort(location: (res.valueForKey("location") as? Int)!, name: (res.valueForKey("name") as? String)!, id:(res.valueForKey("id") as? Int)!)
                 
                 hazardArray.append(h!)
             }
-            
         }
-
-        
     }
 
     override func didReceiveMemoryWarning() {
@@ -67,38 +65,38 @@ class hazardListVC: UITableViewController {
         return 1
     }
 
+    @IBOutlet weak var btnMenuList: UIBarButtonItem!
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("myCell", forIndexPath: indexPath) as! myCell
 
-        var h = hazardArray[indexPath.row]
+        let h = hazardArray[indexPath.row]
         
         cell.lblHazardLocation.text = getLocationName(h.location) as String
         cell.lblHazardName.text = h.name
-        
+        cell.lblID.text = "\(h.id)"
         
         return cell
     }
     
-    func getLocationName(var val:Int) ->String {
+    func getLocationName(let val : Int) ->String {
         
+        var id:String = String(val)
         
-        var id:String = ""
-        
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context:NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "Location")
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Location")
         
         request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "id = %@",String(val))
         
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         
         if results.count > 0 {
-            var res = results[0] as! NSManagedObject
+            let res = results[0] as! NSManagedObject
             id = res.valueForKey("name") as! String
         }else{
-            print("Error finding location")
+            print("Error finding location", terminator: "")
         }
         
         return id

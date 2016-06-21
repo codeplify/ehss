@@ -40,11 +40,11 @@ class PopLocationViewController: UIViewController , UIPickerViewDelegate{
     
     private func updatePickerCurrentDate() {
         
-        if let _currentDate = self.currentDate {
+        //if let _currentDate = self.currentDate {
            // if let _datePicker = self.location{
                 
            // }
-        }
+        //}
     }
     
     @IBAction func okAction(sender: UIButton) {
@@ -52,7 +52,7 @@ class PopLocationViewController: UIViewController , UIPickerViewDelegate{
         self.dismissViewControllerAnimated(false) {
             
             //let nsdate = self.datePicker.date
-            self.delegate?.locationPickerVCDismissed(locationSelected)
+            self.delegate?.locationPickerVCDismissed(self.locationSelected)
             
         }
         
@@ -61,16 +61,16 @@ class PopLocationViewController: UIViewController , UIPickerViewDelegate{
     override func viewDidLoad() {
         
         
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context: NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "Location")
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context: NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Location")
         
         request.returnsObjectsAsFaults = false
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         if results.count > 0 {
             for res in results {
             
-                var loc = res.valueForKey("name") as! String
+                let loc = res.valueForKey("name") as! String
                 self.location.append(loc)
                 //println(loc)
             }
@@ -94,18 +94,15 @@ class PopLocationViewController: UIViewController , UIPickerViewDelegate{
         return location.count
     }
     
-    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String!{
+    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String?{
         return location[row]
     }
     
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int){
         
         locationSelected = location[row]
-        print("Dept: \(locationSelected)")
+        print("Dept: \(locationSelected)", terminator: "")
     }
     
     
-    
-    
-
 }

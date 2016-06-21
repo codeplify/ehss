@@ -18,6 +18,8 @@ class myCell: UITableViewCell {
         // Initialization code
     }
 
+    @IBOutlet weak var lblID: UILabel!
+    
     override func setSelected(selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 

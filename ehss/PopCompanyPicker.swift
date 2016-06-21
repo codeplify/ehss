@@ -50,7 +50,7 @@ public class PopCompanyPicker : NSObject, UIPopoverPresentationControllerDelegat
         
         if let _dataChanged = dataChanged {
             
-            println("Company Id passed:\(companyId)")
+            print("Company Id passed:\(companyId)")
             
             if let v = value {
                 

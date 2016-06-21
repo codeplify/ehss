@@ -53,20 +53,20 @@ class PopCompanyViewController : UIViewController, UIPickerViewDelegate {
         
         self.dismissViewControllerAnimated(false) {
             
-            var AppDel: AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-            var context: NSManagedObjectContext = AppDel.managedObjectContext!
-            var request = NSFetchRequest(entityName: "Milestone")
+            let AppDel: AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+            let context: NSManagedObjectContext = AppDel.managedObjectContext!
+            let request = NSFetchRequest(entityName: "Milestone")
             
             request.returnsObjectsAsFaults = false
             //request.predicate = NSPredicate(format: "productname = %@", "(txtName.text)")
             
             request.predicate = NSPredicate(format: "company = %@", "\(self.companySelected)")
             
-            var results:NSArray = context.executeFetchRequest(request, error: nil)!
+            let results:NSArray = try! context.executeFetchRequest(request)
             
             if results.count > 0 {
                 for res in results {
-                    var id = res.valueForKey("id") as! Int
+                    let id = res.valueForKey("id") as! Int
                     self.delegate?.companyPickerVCDismissed(self.companySelected,companyId:id)
                 }
             }
@@ -83,22 +83,22 @@ class PopCompanyViewController : UIViewController, UIPickerViewDelegate {
         
         //load value array here
         
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context:NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "Milestone")
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Milestone")
         
         request.returnsObjectsAsFaults = false
         //no predicate
         
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         
         if results.count>0 {
         
             for res in results{
                 
-                var company = res.valueForKey("company") as! String
+                let company = res.valueForKey("company") as! String
                 self.company.append(company)
-                println(company)
+                print(company)
             
             }
             
@@ -130,7 +130,7 @@ class PopCompanyViewController : UIViewController, UIPickerViewDelegate {
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int){
         
         companySelected = company[row]
-        print("Company: \(companySelected)")
+        print("Company: \(companySelected)", terminator: "")
     }
     
     

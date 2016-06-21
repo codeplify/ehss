@@ -27,24 +27,26 @@ class auditInspectionVC: UIViewController,UITextFieldDelegate {
     var popLocation : PopLocationPicker?
     var popCompany : PopCompanyPicker?
     var popDepartment : PopDeptPicker?
+    var popAllUser: PopAllUsersPicker?
     
-    func getCompany(var val:String) -> Int{
+    
+    func getCompany(let val:String) -> Int{
         var id:Int = 0
         
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context:NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "Milestone")
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Milestone")
         
         request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "company = %@",val)
         
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         
         if results.count > 0 {
-            var res = results[0] as! NSManagedObject
+            let res = results[0] as! NSManagedObject
             id = res.valueForKey("id") as! Int
         }else{
-            print("Error find company")
+            print("Error find company", terminator: "")
         }
         return id
         
@@ -68,6 +70,9 @@ class auditInspectionVC: UIViewController,UITextFieldDelegate {
         
         popDepartment = PopDeptPicker(forTextField: txtDepartment)
         txtDepartment.delegate = self
+        
+        popAllUser = PopAllUsersPicker(forTextField:txtPersonResponsible)
+        txtPersonResponsible.delegate = self
 
         // Do any additional setup after loading the view.
     }
@@ -83,6 +88,7 @@ class auditInspectionVC: UIViewController,UITextFieldDelegate {
         txtDepartment.resignFirstResponder()
         txtLocation.resignFirstResponder()
         txtCompany.resignFirstResponder()
+        txtPersonResponsible.resignFirstResponder()
     }
     
     func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
@@ -91,7 +97,7 @@ class auditInspectionVC: UIViewController,UITextFieldDelegate {
             let formatter = NSDateFormatter()
             formatter.dateStyle = .MediumStyle
             formatter.timeStyle = .NoStyle
-            let initDate : NSDate? = formatter.dateFromString(txtStartDate.text)
+            let initDate : NSDate? = formatter.dateFromString(txtStartDate.text!)
             
             let dataChangedCallback : PopDatePicker.PopDatePickerCallback = { (newDate : NSDate, forTextField : UITextField) -> () in
                 
@@ -106,7 +112,7 @@ class auditInspectionVC: UIViewController,UITextFieldDelegate {
             let formatter = NSDateFormatter()
             formatter.dateStyle = .MediumStyle
             formatter.timeStyle = .NoStyle
-            let initDate : NSDate? = formatter.dateFromString(txtDueDate.text)
+            let initDate : NSDate? = formatter.dateFromString(txtDueDate.text!)
             
             let dataChangedCallback : PopDatePicker.PopDatePickerCallback = { (newDate : NSDate, forTextField : UITextField) -> () in
                 
@@ -142,11 +148,26 @@ class auditInspectionVC: UIViewController,UITextFieldDelegate {
                 
             }
             
-            let companyIdVal:Int? = self.getCompany(txtCompany.text as String)
+            let companyIdVal:Int? = self.getCompany(txtCompany.text! as String)
             
             popDepartment!.pick(self, initDate: initDept, dataChanged: dataChangedCallback, company:companyIdVal!)
             return false;
         
+        }else if(textField === txtPersonResponsible){
+            resign()
+            
+            let initUser:NSString? = txtPersonResponsible.text
+            let dataChangedCallback: PopAllUsersPicker.PopAllUsersCallback = {
+                (newVal:NSString, forTextField: UITextField)->() in
+                forTextField.text = "\(newVal)"
+            
+            }
+            
+            popAllUser?.pick(self, initDate: initUser, dataChanged: dataChangedCallback, user: "")
+            
+            return false
+            
+            
         }else if(textField === txtLocation){
             resign()
             let initLocation:NSString? = txtLocation.text

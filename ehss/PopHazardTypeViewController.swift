@@ -31,13 +31,13 @@ class PopHazardTypeViewController: UIViewController , UIPickerViewDelegate{
     
     var currentHazardData: NSInteger?{
         didSet{
-            print("Current Hazard data: \(currentHazardData)")
+            print("Current Hazard data: \(currentHazardData)", terminator: "")
         }
     }
     
     var currentHazardDataId: NSString?{
         didSet{
-            print("Current Hazard String id data: \(currentHazardDataId)")
+            print("Current Hazard String id data: \(currentHazardDataId)", terminator: "")
         }
     }
     
@@ -60,7 +60,7 @@ class PopHazardTypeViewController: UIViewController , UIPickerViewDelegate{
         self.dismissViewControllerAnimated(false) {
             
             //let nsdate = self.datePicker.date
-            self.delegate?.hazardTypePickerVCDismissed(hazardTypeSelected)
+            self.delegate?.hazardTypePickerVCDismissed(self.hazardTypeSelected)
             
         }
         
@@ -80,7 +80,7 @@ class PopHazardTypeViewController: UIViewController , UIPickerViewDelegate{
         
         
         if let hazardDataType = currentHazardData {
-            println("Inside view did load: \(hazardDataType)")
+            print("Inside view did load: \(hazardDataType)")
             
             if hazardDataType == 0 {
                 //r
@@ -89,7 +89,7 @@ class PopHazardTypeViewController: UIViewController , UIPickerViewDelegate{
                 hdVal = "preference"
                 
                 
-                println("\(hd):\(hdTable): \(hdVal)")
+                print("\(hd):\(hdTable): \(hdVal)")
             }
             
             if hazardDataType == 1 {
@@ -97,7 +97,7 @@ class PopHazardTypeViewController: UIViewController , UIPickerViewDelegate{
                 hdTable = "HazardOrigin"
                 hdVal = "origin"
                 //request.predicate = NSPredicate(format: "parent = %@","0")
-                 println("\(hd):\(hdTable): \(hdVal)")
+                 print("\(hd):\(hdTable): \(hdVal)")
             }
             
             if hazardDataType == 2 {
@@ -106,17 +106,17 @@ class PopHazardTypeViewController: UIViewController , UIPickerViewDelegate{
                 
                 if let currentHazardString = currentHazardDataId{
                     
-                    var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-                    var context: NSManagedObjectContext = AppDel.managedObjectContext!
-                    var request = NSFetchRequest(entityName: "HazardOrigin")
+                    let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+                    let context: NSManagedObjectContext = AppDel.managedObjectContext!
+                    let request = NSFetchRequest(entityName: "HazardOrigin")
                     
                     request.returnsObjectsAsFaults = false
                     request.predicate = NSPredicate(format: "origin = %@", currentHazardString)
                     
-                    var results:NSArray = context.executeFetchRequest(request, error: nil)!
+                    let results:NSArray = try! context.executeFetchRequest(request)
                     if results.count > 0 {
                         for res in results {
-                            var originId:Int?  = res.valueForKey("id") as? Int
+                            let originId:Int?  = res.valueForKey("id") as? Int
                             
                             if let oId = originId {
                                hd = "\(oId)"
@@ -134,21 +134,21 @@ class PopHazardTypeViewController: UIViewController , UIPickerViewDelegate{
         
         
         
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context: NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: hdTable)
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context: NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: hdTable)
         request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "parent = %@",hd)
         
         self.hazardType.removeAll(keepCapacity: false)
         
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         if results.count > 0 {
             for res in results {
                 
-                var pref:String? = res.valueForKey(hdVal) as? String
+                let pref:String? = res.valueForKey(hdVal) as? String
                 
-                println(pref)
+                print(pref)
                 
                 if let preference = pref {
                     self.hazardType.append("\(preference)")

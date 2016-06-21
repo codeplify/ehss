@@ -9,33 +9,41 @@
 import UIKit
 import CoreData
 
-class ViewController: UIViewController {
+
+
+class ViewController: UIViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     let userDefaults = NSUserDefaults.standardUserDefaults()
 
-    
+  
     @IBOutlet weak var txtUsername: UILabel!
     @IBOutlet var lblEmail: UILabel!
     
-     var popDatePicker : PopDatePicker?
+    var popDatePicker : PopDatePicker?
+    var imagePicker = UIImagePickerController()    
+    
+    @IBAction func openCameraBtn(sender: UIBarButtonItem) {
+            imagePicker.sourceType = UIImagePickerControllerSourceType.Camera
+            presentViewController(imagePicker, animated: true, completion: nil)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context:NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "Usercontroller")
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Usercontroller")
         
         request.returnsObjectsAsFaults = false
         //request.predicate = NSPredicate(format: "")
         
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         
         if results.count > 0{
-            var res = results[0] as! NSManagedObject
+            let res = results[0] as! NSManagedObject
             
-            var subdomain = res.valueForKey("subdomain") as! String
+            let subdomain = res.valueForKey("subdomain") as! String
             lblEmail.text = subdomain
             
             
@@ -43,7 +51,7 @@ class ViewController: UIViewController {
             //object.intProperty = NSNumber(int:Int(item["id"] as String))
             
         }else{
-            print("0 results")
+            print("0 results", terminator: "")
         }
         
     }
@@ -58,19 +66,21 @@ class ViewController: UIViewController {
         if userDefaults.valueForKey("ehss_username") != nil && userDefaults.valueForKey("ehss_password") != nil &&
             userDefaults.valueForKey("subdomain") != nil {
             
-            var username = userDefaults.valueForKey("ehss_username") as! String
-            var password = userDefaults.valueForKey("ehss_password") as! String
+            let username = userDefaults.valueForKey("ehss_username") as! String
+            let password = userDefaults.valueForKey("ehss_password") as! String
+            
+            
           
-            var subdomain = userDefaults.valueForKey("subdomain") as! String
+            let subdomain = userDefaults.valueForKey("subdomain") as! String
             
             //check of sqlite database for user has been save
             //if none
             //create session task and save to database the username value
             //do next login to load users data
             
-            var sub = lblEmail.text
+           // let sub = lblEmail.text
             
-            var urlLogin2 = "https://\(subdomain).ehss.net/mobile/mobile_login?username=\(username)&password=\(password)"
+            let urlLogin2 = "https://\(subdomain).ehss.net/mobile/mobile_login?username=\(username)&password=\(password)"
             
             let requestURL:NSURL = NSURL(string: urlLogin2)!
             let urlRequest:NSMutableURLRequest = NSMutableURLRequest(URL: requestURL)
@@ -83,36 +93,39 @@ class ViewController: UIViewController {
                 
                 if statusCode == 200 {
 
-                    let json = NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments, error: nil) as! [String:AnyObject]
+                    let json = (try! NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments)) as! [String:AnyObject]
                     
                     
-                        let mobile = json["mobile_phone"] as? String
+                     //   let mobile = json["mobile_phone"] as? String
                         let role = json["role"] as? Int
-                        let email = json["email"] as? String
+                     //   let email = json["email"] as? String
                         let name = json["name"] as? String
-                        let employee_id = json["employee_id"] as? Int
+                    /*    let employee_id = json["employee_id"] as? Int
                         let password = json["password"] as? String
                         let company = json["company"] as? Int
                         let user_id = json["user_id"] as? Int
-                        let designation = json["designation"] as? Int
+                        let designation = json["designation"] as? Int*/
                     
                     
-                        print("Fullname: \(name)")
-                        print("Role: \(role)")
-                        print(json)
+                        print("Fullname: \(name)", terminator: "")
+                        print("Role: \(role)", terminator: "")
+                        print(json, terminator: "")
                     
                             //object.intProperty = NSNumber(int:Int(item["id"] as String))
                     
-                    var AppDel:AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-                    var context:NSManagedObjectContext = AppDel.managedObjectContext!
+                    //let AppDel:AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                   // let context:NSManagedObjectContext = AppDel.managedObjectContext!
                     
-                    var newUser = NSEntityDescription.insertNewObjectForEntityForName("User", inManagedObjectContext: context) as! NSManagedObject
+                    //let newUser = NSEntityDescription.insertNewObjectForEntityForName("User", inManagedObjectContext: context)
                     
                 }
+                
                 
             }
             
             task.resume()
+            
+            self.performSegueWithIdentifier("toDashboard", sender: self)
             
         }else{
             self.performSegueWithIdentifier("toLogin", sender: self)

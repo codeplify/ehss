@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style type='text/css'>
+            body {
+                padding-top: 40px;
+            }
+        </style>
+        <title>WKWebView Demo</title>
+        <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width; user-scalable=0;' />
+            </head>
+    <body>
+        
+        <!-- Coordinates 231,227,244,247,277,228,263,208-->
+        <h1>Map</h1>
+        <p><img src='canvas.png'  usemap="#ehssmap" /></p>
+        <script type='text/javascript' src="main.js"></script>
+         <a onclick='sendInfo(1)'>Test Javascript</a>
+         <map name='ehssmap'>
+         <area shape='poly' coords='231,227,244,247,277,228,263,208' onclick='sendInfo(2)' />
+         </map>
+    </body>
+</html>

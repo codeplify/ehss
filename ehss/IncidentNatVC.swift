@@ -50,7 +50,7 @@ class IncidentNatVC: UIViewController, UITableViewDelegate, UITableViewDataSourc
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell",forIndexPath: indexPath) as! UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("Cell",forIndexPath: indexPath) 
         
         cell.textLabel?.text = natureList[indexPath.row]
         return cell
@@ -59,7 +59,7 @@ class IncidentNatVC: UIViewController, UITableViewDelegate, UITableViewDataSourc
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath){
         let natList = natureList[indexPath.row]
-        var selectedNatureListVC:selectNatureListVC = self.storyboard?.instantiateViewControllerWithIdentifier("SelectedNatureController") as! selectNatureListVC
+        let selectedNatureListVC:selectNatureListVC = self.storyboard?.instantiateViewControllerWithIdentifier("SelectedNatureController") as! selectNatureListVC
         
         selectedNatureListVC.selectedMainNature = natList as String
         self.presentViewController(selectedNatureListVC, animated: true, completion: nil)
@@ -70,8 +70,9 @@ class IncidentNatVC: UIViewController, UITableViewDelegate, UITableViewDataSourc
 
     @IBAction func btnSave(sender: UIButton) {
         
-        println("Incident has saved!")
+        print("Incident has saved!")
         
+        /*
         
         var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
         var context:NSManagedObjectContext = AppDel.managedObjectContext!
@@ -102,8 +103,8 @@ class IncidentNatVC: UIViewController, UITableViewDelegate, UITableViewDataSourc
         newIncident.setValue(userId, forKey: "user_id")
         newIncident.setValue(incident.company_id, forKey: "company_id")
         newIncident.setValue(incident.image, forKey: "image")
-        newIncident.setValue(username, forKey: "username")
-        newIncident.setValue(password, forKey: "password")
+        //newIncident.setValue(username, forKey: "username")
+        //newIncident.setValue(password, forKey: "password")
         
         
         context.save(nil)
@@ -169,7 +170,7 @@ class IncidentNatVC: UIViewController, UITableViewDelegate, UITableViewDataSourc
             }
             
             
-        }
+        } */
         
         //task.resume()
         
@@ -208,5 +209,22 @@ class IncidentNatVC: UIViewController, UITableViewDelegate, UITableViewDataSourc
     postParam.put("password", password);
     
     */
+    
+    
+    var selectedNatureCat = ""
+    
+    
+    @IBAction func btnOkIncident(sender: UIButton) {
+        /*
+        var selectedNatureListVC:selectNatureListVC = self.storyboard?.instantiateViewControllerWithIdentifier("SelectedNatureController") as! selectNatureListVC
+        
+        selectedNatureListVC.selectedMainNature = natList as String
+        self.presentViewController(selectedNatureListVC, animated: true, completion: nil)
+        */
+        let incidentMain:incidentVC = self.storyboard?.instantiateViewControllerWithIdentifier("incidentMain") as! incidentVC
+        
+        incidentMain.nat = selectedNatureCat
+        self.presentViewController(incidentMain, animated: true, completion: nil)
+    }
 
 }

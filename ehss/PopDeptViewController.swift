@@ -16,7 +16,7 @@ class PopDeptViewController : UIViewController, UIPickerViewDelegate {
     
     var currentCompany : NSInteger? {
         didSet {
-            println("Current Company : \(currentCompany)")
+            print("Current Company : \(currentCompany)")
         }
     }
     
@@ -33,8 +33,6 @@ class PopDeptViewController : UIViewController, UIPickerViewDelegate {
     }
     
     convenience init() {
-        
-     
         
         self.init(nibName: "PopDeptPicker", bundle: nil)
     }
@@ -53,7 +51,7 @@ class PopDeptViewController : UIViewController, UIPickerViewDelegate {
         self.dismissViewControllerAnimated(false) {
             
             //let nsdate = self.datePicker.date
-            self.delegate?.deptPickerVCDismissed(departmentSelected)
+            self.delegate?.deptPickerVCDismissed(self.departmentSelected)
             
         }
         
@@ -62,8 +60,6 @@ class PopDeptViewController : UIViewController, UIPickerViewDelegate {
     /*override func viewDidLoad() {
         
         //load value array here
-       
-
         updatePickerCurrentDate()
         
         
@@ -72,16 +68,16 @@ class PopDeptViewController : UIViewController, UIPickerViewDelegate {
     override func viewDidAppear(animated: Bool) {
         if let company = currentCompany {
             
-            var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-            var context:NSManagedObjectContext = AppDel.managedObjectContext!
-            var request = NSFetchRequest(entityName: "Unit")
+            let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+            let context:NSManagedObjectContext = AppDel.managedObjectContext!
+            let request = NSFetchRequest(entityName: "Unit")
             
             request.returnsObjectsAsFaults = false
             request.predicate = NSPredicate(format: "parent_id = %@", "\(company)")
             //add predicate
-            var results:NSArray = context.executeFetchRequest(request, error: nil)!
+            let results:NSArray = try! context.executeFetchRequest(request)
             
-            println("inside view didload \(company)")
+            print("inside view didload \(company)")
             
             
             //clear department
@@ -90,13 +86,11 @@ class PopDeptViewController : UIViewController, UIPickerViewDelegate {
             
             if results.count>0 {
                 
-                
-                
                 for res in results{
                     
-                    var dept = res.valueForKey("name") as! String
+                    let dept = res.valueForKey("name") as! String
                     self.department.append(dept)
-                    println("\(dept) Parent Id: \(company)")
+                    print("\(dept) Parent Id: \(company)")
                     
                 }
                 
@@ -108,8 +102,7 @@ class PopDeptViewController : UIViewController, UIPickerViewDelegate {
     
     override func viewDidDisappear(animated: Bool) {
         self.department.removeAll(keepCapacity: false)
-        
-        self.delegate?.deptPickerVCDismissed(nil)
+        self.delegate?.deptPickerVCDismissed(nil)        
     }
     
     //for datepicker
@@ -130,11 +123,10 @@ class PopDeptViewController : UIViewController, UIPickerViewDelegate {
     
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int){
         
-        
         if component == 0 {
             departmentSelected = department[row]
             pickerView.reloadAllComponents()
-            print("Dept: \(departmentSelected)")
+            print("Dept: \(departmentSelected)", terminator: "")
         }
         
        

@@ -1,7 +1,9 @@
 import UIKit
 import CoreData
 
-class hazardVC: UIViewController,UITextFieldDelegate {
+class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    var imagePicker = UIImagePickerController()
     
     var popDatePicker : PopDatePicker?
     var popCompanyPicker: PopCompanyPicker?
@@ -14,6 +16,27 @@ class hazardVC: UIViewController,UITextFieldDelegate {
     
     var userPref = NSUserDefaults.standardUserDefaults()
     
+    
+    @IBOutlet weak var lblUserFull: UILabel!
+    @IBOutlet weak var lblDate: UILabel!
+    
+    
+    @IBOutlet weak var btnAttachment: UIButton!
+    
+    @IBAction func btnAttached(sender: UIButton) {
+        
+        imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+        presentViewController(imagePicker, animated: true, completion: nil)
+        
+    }
+    
+    func currentDate()->String{
+        let date = NSDate()
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateStyle = NSDateFormatterStyle.LongStyle
+                
+        return "\(dateFormatter.stringFromDate(date))"
+    }
     
     //static var hazard:Hazard = Hazard()
     
@@ -28,6 +51,7 @@ class hazardVC: UIViewController,UITextFieldDelegate {
         var hazardImpact2:Int
         var hazardName:String
         var hazardDescription:String
+        
     }
 
     var hazardObject = Hazard(time: "", date: "", company: 0, department: 0, location: 0, hazardType: 0, hazardImpact: 0, hazardImpact2: 0, hazardName: "", hazardDescription: "")
@@ -45,10 +69,47 @@ class hazardVC: UIViewController,UITextFieldDelegate {
     @IBOutlet weak var hazardNameText: UITextField!
     @IBOutlet weak var hazardDescText: UITextField!
 
+    @IBOutlet weak var scrollview: UIScrollView!
     
+    @IBOutlet weak var btnListAll: UIBarButtonItem!
+    
+    
+    var activeField: UITextField?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context: NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "AllUser")
+        request.returnsObjectsAsFaults = false
+        
+        request.predicate = NSPredicate(format: "email = %@", userPref.valueForKey("ehss_username") as! String)
+        
+        
+        
+        do{
+            
+            let result:NSArray = try context.executeFetchRequest(request)
+            
+            //print("username count : \(result.count)")
+            
+            if result.count > 0 {
+                let r = result[0] as! NSManagedObject
+                
+                lblUserFull.text = r.valueForKey("name") as? String
+                
+                //print("username \(lblUserFull.text)")
+            }
+            
+        }catch{
+        
+        }
+        
+        lblDate.text = currentDate()
+        
         
         popDatePicker = PopDatePicker(forTextField: txtDate)
         txtDate.delegate = self
@@ -74,6 +135,15 @@ class hazardVC: UIViewController,UITextFieldDelegate {
         popTimePicker = PopDatePicker(forTextField: txtTime)
         txtTime.delegate = self
         
+        if self.revealViewController() != nil {
+            btnListAll.target = self.revealViewController()
+            btnListAll.action = "revealToggle:"
+            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
+        }
+        
+        //hazardName.delegate = self
+        //hazardDescription.delegate = self
+        
     }
     
     func resign() {
@@ -87,6 +157,14 @@ class hazardVC: UIViewController,UITextFieldDelegate {
         txtTime.resignFirstResponder()
     }
     
+    func textFieldDidBeginEditing(textField: UITextField!){
+        activeField = textField
+    }
+    
+    func textFieldDidEndEditing(textField: UITextField) {
+        activeField = nil
+    }
+    
     func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
         
         if (textField === txtDate) {
@@ -94,14 +172,14 @@ class hazardVC: UIViewController,UITextFieldDelegate {
             let formatter = NSDateFormatter()
             formatter.dateStyle = .MediumStyle
             formatter.timeStyle = .NoStyle
-            let initDate : NSDate? = formatter.dateFromString(txtDate.text)
+            let initDate : NSDate? = formatter.dateFromString(txtDate.text!)
             
             let dataChangedCallback : PopDatePicker.PopDatePickerCallback = { (newDate : NSDate, forTextField : UITextField) -> () in
                 
                 forTextField.text = (newDate.ToDateMediumString() ?? "?") as String
                 
-                self.hazardObject.date = self.txtDate.text as String
-                print("Hazard object value: \(self.hazardObject.date)")
+                self.hazardObject.date = self.txtDate.text! as String
+                print("Hazard object value: \(self.hazardObject.date)", terminator: "")
             }
             
             popDatePicker!.pick(self, initDate: initDate, dataChanged: dataChangedCallback)
@@ -140,7 +218,7 @@ class hazardVC: UIViewController,UITextFieldDelegate {
                 
             }
             
-            let companyIdVal:Int? = self.getCompany(txtCompany.text as String)
+            let companyIdVal:Int? = self.getCompany(txtCompany.text! as String)
             
             
         
@@ -158,7 +236,7 @@ class hazardVC: UIViewController,UITextFieldDelegate {
                 
                 self.hazardObject.location = self.getLocation("\(newVal)")
                 
-                print("Location \(self.hazardObject.location)");
+                print("Location \(self.hazardObject.location)", terminator: "");
                 
             }
             
@@ -204,7 +282,7 @@ class hazardVC: UIViewController,UITextFieldDelegate {
                 self.hazardObject.hazardImpact2 = self.getHazardImpact("\(newVal)")
             }
             
-            var dataString = txtHazardImpact.text as String
+            let dataString = txtHazardImpact.text! as String
             
             //print("data string value: \(dataString)")
             
@@ -215,14 +293,119 @@ class hazardVC: UIViewController,UITextFieldDelegate {
             return true
         }
     }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        
+        hazardDescription.resignFirstResponder()
+        hazardNameText.resignFirstResponder()
+        return true;
+    }
+    
+    var kbHeight:CGFloat!
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
+    /*override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillShow:"), name: UIKeyboardWillShowNotification, object: nil)
+        
+        NSNotificationCenter.defaultCenter().addObserver("keyboardWillHide:", selector: "keyboardWillHide", name: UIKeyboardWillHideNotification, object: nil)
+        
+    } */
+    
+   
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+        
+        
+        //view.endEditing(true)
+        /*
+         if let userInfo = notification.userInfo {
+            if let keyboardSize = (userInfo[UIKeyboardFrameBeginUserInfoKey])?.CGRectValue(){
+                kbHeight = keyboardSize.height
+                self.animateTextField(true)
+            }
+         }
+         */
+        
+        
+    }
+    
+    //func keyboardWillShow(notification: NSNotification){
+        
+        //view.endEditing(true)
+        
+        /*let userInfor = notification.userInfo
+        let keyboardSize = (userInfor![UIKeyboardFrameBeginUserInfoKey])?.CGRectValue()
+        
+        print("keybaord size \(keyboardSize)")
+        if let userInfo = notification.userInfo {
+            if let keyboardSize = (userInfo[UIKeyboardFrameBeginUserInfoKey])?.CGRectValue(){
+                kbHeight = keyboardSize.height
+                self.animateTextField(true)
+                 print("keybaord size \(keyboardSize)")
+            }
+        } */
+        
+        /*if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue(){
+            self.view.frame.origin.y -= keyboardSize.height
+        }*/
+        
+       /* self.scrollview.scrollEnabled = true
+        
+        let info: NSDictionary = notification.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue().size
+        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, (keyboardSize?.height)!, 0.0)
+        
+        self.scrollview.contentInset = contentInsets
+        self.scrollview.scrollIndicatorInsets = contentInsets
+        
+        var aRect:CGRect = self.view.frame
+        aRect.size.height -= keyboardSize!.height
+        if let activeFieldPresent = activeField {
+            if(!CGRectContainsPoint(aRect, activeField!.frame.origin)){
+                self.scrollview.scrollRectToVisible(activeField!.frame, animated: true)
+            }
+        }
+        
+        
+    }*/
+    
+    /*func animateTextField(up: Bool){
+        let movement = (up ? -kbHeight : kbHeight)
+        
+        UIView.animateWithDuration(0.3, animations: {
+            self.view.frame = CGRectOffset(self.view.frame, 0, movement)
+        })
+    
+    } */
+    
+    
+    //func keyboardWillHide(notification: NSNotification){
+        //self.animateTextField(false)
+        
+        /*if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue(){
+            self.view.frame.origin.y += keyboardSize.height
+        }*/
+        
+        
+        /*let info: NSDictionary = notification.userInfo!
+        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue().size
+        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, -(keyboardSize?.height)!, 0.0)
+        self.scrollview.scrollIndicatorInsets = contentInsets
+        self.view.endEditing(true)
+        self.scrollview.scrollEnabled = false*/
+        
+        
+    //}
 
-    @IBAction func openDate(sender: UIButton) {
+    @IBAction func openDate(sender: UIButton){
         
     }
     
@@ -230,23 +413,21 @@ class hazardVC: UIViewController,UITextFieldDelegate {
        
         
         if validateHazard() {
-            println("Date: \(hazardObject.date)")
+            print("Date: \(hazardObject.date)")
             //println("Time: \(hazardObject.time)")
-            println("Company: \(hazardObject.company)")
-            println("Location: \(hazardObject.location)")
-            println("Department: \(hazardObject.department)")
-            println("Hazard Type: \(hazardObject.hazardType)")
-            println("Hazard Impact: \(hazardObject.hazardImpact)")
-            println("Hazard Impact 2:\(hazardObject.hazardImpact2)")
-            println("Hazard Name: \(hazardNameText.text)")
-            println("Hazard Description:  \(hazardDescText.text)")
-            
+            print("Company: \(hazardObject.company)")
+            print("Location: \(hazardObject.location)")
+            print("Department: \(hazardObject.department)")
+            print("Hazard Type: \(hazardObject.hazardType)")
+            print("Hazard Impact: \(hazardObject.hazardImpact)")
+            print("Hazard Impact 2:\(hazardObject.hazardImpact2)")
+            print("Hazard Name: \(hazardNameText.text)")
+            print("Hazard Description:  \(hazardDescText.text)")
             
             hazardSave(hazardObject)
             
-            
         }else{
-             println(" fill out all of the data")
+             print(" fill out all of the data")
         }
         
         
@@ -258,49 +439,49 @@ class hazardVC: UIViewController,UITextFieldDelegate {
         var validated = true;
         
         if txtDate.text == ""{
-            println("Date is empty")
+            print("Date is empty")
             validated = false
             return validated;
         }
         
         if txtTime.text == "" {
             //validated = false
-            println("Time is empty")
+            print("Time is empty")
              return validated;
         }
         
         if txtCompany.text == "" {
-            println("Company is empty")
+            print("Company is empty")
             validated = false
              return validated;
         }
         
         if txtLocation.text == "" {
-            println("Department is empty")
+            print("Department is empty")
             validated = false
              return validated;
         }
         
         if txtHazardType.text == "" {
-            println("Hazard Type is empty")
+            print("Hazard Type is empty")
             validated = false
              return validated;
         }
         
         if txtHazardImpact.text == "" {
-            println("Hazard impact is empty")
+            print("Hazard impact is empty")
             validated = false
              return validated;
         }
         
         if txtHazardImpact2.text == "" {
-            println("Hazard impact 2 is empty")
+            print("Hazard impact 2 is empty")
             validated = false
              return validated;
         }
         
         if hazardName.text == "" {
-            println("Hazard name is empty")
+            print("Hazard name is empty")
             validated = false
              return validated;
         }
@@ -316,16 +497,16 @@ class hazardVC: UIViewController,UITextFieldDelegate {
     
     func hazardSave(h:Hazard){
         
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context:NSManagedObjectContext = AppDel.managedObjectContext!
-        var newHazard = NSEntityDescription.insertNewObjectForEntityForName("Hazard", inManagedObjectContext: context) as! NSManagedObject
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let newHazard = NSEntityDescription.insertNewObjectForEntityForName("Hazard", inManagedObjectContext: context)
         
         //convert integer value to string
         
       
         
                var userId:Int = 0
-        var imageAtt:String = ""
+        let imageAtt:String = ""
         var username:String = ""
         var password:String = ""
         var subdomain:String = ""
@@ -338,8 +519,9 @@ class hazardVC: UIViewController,UITextFieldDelegate {
             
         }
         
+       print("hazard object id \(newHazard.objectID)")
 
-        
+        //newHazard.setValue(newHazard.objectID, forKey: "id")
         newHazard.setValue(h.company, forKey: "company_id")
         newHazard.setValue(h.date, forKey: "date")
         newHazard.setValue(h.department, forKey: "department")
@@ -356,10 +538,32 @@ class hazardVC: UIViewController,UITextFieldDelegate {
         newHazard.setValue(h.hazardImpact2, forKey: "type")
         newHazard.setValue(userId, forKey: "user_id") //get value from shared preference
         
+        //get sign in of user login
         
-        context.save(nil)
+        print("======Hazard to saved!====")
+        print("company: \(h.company)")
+        print("date: \(h.date)")
+        print("dept: \(h.department)")
+        print("description: \(h.hazardDescription)")
+        print("image: \(image)")
+        print("subdomain: \(subdomain)")
+        print("hazard type: \(h.hazardType)")
+        print("impact: \(h.hazardImpact)")
+        print("type: \(h.hazardImpact2) ")
+        print("user_id: \(userId)")
         
-        println("Saved => \(newHazard)")
+        
+        
+        
+        /*
+         redo later
+        
+        do {
+            try context.save()
+        } catch _ {
+        } */
+        
+        print("Saved => \(newHazard)")
 
         
         let formatter = NSDateFormatter()
@@ -367,68 +571,86 @@ class hazardVC: UIViewController,UITextFieldDelegate {
         formatter.timeStyle = .NoStyle;
         
         
-     
- 
-
         
-        var postString = "date=\(formatter.stringFromDate(formatter.dateFromString(h.date)!))&description=\(hazardDescription.text)&hazard_type=\(h.hazardType)&hazard_impact=\(h.hazardImpact)&company=\(h.company)&department=\(h.department)&location=\(h.location)&type_add=\(h.hazardImpact2)&name=\(hazardName.text)&user_id=\(userId)&image_attachment=\(imageAtt)&username=\(username)&password=\(password)"
+        
+        let postString = "date=\(formatter.stringFromDate(formatter.dateFromString(h.date)!))&description=\(hazardDescription.text)&hazard_type=\(h.hazardType)&hazard_impact=\(h.hazardImpact)&company=\(h.company)&department=\(h.department)&location=\(h.location)&type_add=\(h.hazardImpact2)&name=\(hazardName.text)&user_id=\(userId)&image_attachment=\(imageAtt)&username=\(username)&password=\(password)"
         
 
         
-        var request = NSMutableURLRequest(URL:NSURL(string:"https://\(subdomain).ehss.net/mobile/save_hazard")!)
-        var session = NSURLSession.sharedSession()
+        let request = NSMutableURLRequest(URL:NSURL(string:"https://\(subdomain).ehss.net/mobile/save_hazard")!)
+        let session = NSURLSession.sharedSession()
        
         
         request.HTTPMethod = "POST"
         
-        var params = ["date":"\(formatter.stringFromDate(formatter.dateFromString(h.date)!))","description":"\(hazardDescription.text)","hazard_type":"\(h.hazardType)","hazard_impact":"\(h.hazardImpact)","company":"\(h.company)","department":"\(h.department)","location":"\(h.location)","type_add":"\(h.hazardImpact2)","name":"\(hazardName.text)","user_id":"\(userId)","image_attachment":"\(imageAtt)","username":"\(username)","password":"\(password)"] as Dictionary<String, String>
+        let hazardN:String = hazardName.text! as String
         
-        var paramLength = "\(count(postString))"
+        let params = ["date":"\(formatter.stringFromDate(formatter.dateFromString(h.date)!))","description":"\(hazardDescription.text!)","hazard_type":"\(h.hazardType)","hazard_impact":"\(h.hazardImpact)","company":"\(h.company)","department":"\(h.department)","location":"\(h.location)","type_add":"\(h.hazardImpact2)","name":"\(hazardN)","user_id":"\(userId)","image_attachment":"\(imageAtt)","username":"\(username)","password":"\(password)"] as Dictionary<String, String>
         
-        var err:NSError?
-        request.HTTPBody = NSJSONSerialization.dataWithJSONObject(params, options: nil, error: &err)
+        let paramLength = "\(postString.characters.count)"
+        
+        //let err:NSError?
+        
+        do{
+       
+        request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(params, options: [])
         request.addValue(paramLength, forHTTPHeaderField: "Content-Length")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
+        }catch{
+        
+        }
 
         
-        var task = session.dataTaskWithRequest(request){
+        let task = session.dataTaskWithRequest(request){
             data, response, error -> Void in
             
-            var strData = NSString(data:data, encoding:NSUTF8StringEncoding)
-            println("Body\(strData)");
+            do{
+            
+            let strData = NSString(data:data!, encoding:NSUTF8StringEncoding)
+            print("Body\(strData)");
             
             if let httpStatus = response as? NSHTTPURLResponse where httpStatus.statusCode != 200 {           // check for http errors
-                print("statusCode should be 200, but is \(httpStatus.statusCode)")
-                print("response = \(response)")
+                print("statusCode should be 200, but is \(httpStatus.statusCode)", terminator: "")
+                print("response = \(response)", terminator: "")
             }
             
-            var err: NSError?
-            var json = NSJSONSerialization.JSONObjectWithData(data, options: .MutableLeaves, error: &err) as? NSDictionary
+       
+                //let err: NSError?
+                let json = try NSJSONSerialization.JSONObjectWithData(data!, options: .MutableLeaves) as? NSDictionary
+                
+                
+                /*if err != nil {
+                    print(err!.localizedDescription)
+                    let jsonStr = NSString(data:data!, encoding:NSUTF8StringEncoding)
+                    print("Error could not parse json: \(jsonStr)")
+                }else{ */
+                    if let parseJSON = json{
+                        let success = parseJSON["save"] as? Int
+                        print("Success \(success)")
+                    }else{
+                        let jsonStr = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                        print("Error could not parse JSON: \(jsonStr)")
+                    }
+                //}
             
-            if err != nil {
-                println(err!.localizedDescription)
-                let jsonStr = NSString(data:data, encoding:NSUTF8StringEncoding)
-                println("Error could not parse json: \(jsonStr)")
-            }else{
-                if let parseJSON = json{
-                    var success = parseJSON["save"] as? Int
-                    println("Success \(success)")
-                }else{
-                    let jsonStr = NSString(data: data, encoding: NSUTF8StringEncoding)
-                    println("Error could not parse JSON: \(jsonStr)")
-                }
+            
+            
+          
+            }catch{
+            
             }
+  
             
            
         }
         
-        task.resume()
+        //task.resume()
         
         clearForm()
         
-        
+        //redirect to list
       
     }
     
@@ -447,112 +669,112 @@ class hazardVC: UIViewController,UITextFieldDelegate {
     
     }
     
-    func getUserId(var val:String) ->Int{
+    func getUserId(let val:String) ->Int{
         var id:Int = 0;
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context:NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "User")
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "User")
         
         request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "email = %@", val)
         
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         
         if results.count > 0 {
-            var res = results[0] as! NSManagedObject
+            let res = results[0] as! NSManagedObject
             
             id = res.valueForKey("user_id") as! Int
         }
         
-        println("User Id to pass: \(id)")
+        print("User Id to pass: \(id)")
         return 2
     }
     
-    func getLocation(var val:String) ->Int {
+    func getLocation(let val:String) ->Int {
         
         
         var id:Int = 0
         
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context:NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "Location")
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Location")
 
         request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "name = %@",val)
         
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         
         if results.count > 0 {
-            var res = results[0] as! NSManagedObject
+            let res = results[0] as! NSManagedObject
             id = res.valueForKey("id") as! Int
         }else{
-            print("Error finding location")
+            print("Error finding location", terminator: "")
         }
         
         return id
     }
     
-    func getCompany(var val:String) -> Int{
+    func getCompany(let val:String) -> Int{
         var id:Int = 0
         
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context:NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "Milestone")
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Milestone")
         
         request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "company = %@",val)
         
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         
         if results.count > 0 {
-            var res = results[0] as! NSManagedObject
+            let res = results[0] as! NSManagedObject
             id = res.valueForKey("id") as! Int
         }else{
-            print("Error find company")
+            print("Error find company", terminator: "")
         }
         return id
     
     }
     
-    func getDepartment(var val:String) -> Int{
+    func getDepartment(let val:String) -> Int{
         var id:Int = 0
         
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context:NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "Unit")
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Unit")
         
         request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "name = %@", val)
         
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         
         if results.count > 0 {
-            var res = results[0] as! NSManagedObject
+            let res = results[0] as! NSManagedObject
             id = res.valueForKey("id") as! Int
         }else{
-            print("Error finding department id")
+            print("Error finding department id", terminator: "")
         }
         
         return id
     
     }
     
-    func getHazardType(var val:String) -> Int{
+    func getHazardType(let val:String) -> Int{
         var id:Int = 0
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context:NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "Preferences")
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Preferences")
         
         request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "preference = %@", val)
         
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         
         if results.count > 0 {
-            var res = results[0] as! NSManagedObject
+            let res = results[0] as! NSManagedObject
             id = res.valueForKey("id") as! Int
         }else{
-            print("Error finding hazard type")
+            print("Error finding hazard type", terminator: "")
         }
         
         return id
@@ -560,22 +782,22 @@ class hazardVC: UIViewController,UITextFieldDelegate {
     }
     
     
-    func getHazardImpact(var val:String)->Int{
+    func getHazardImpact(let val:String)->Int{
         var id:Int = 0
-        var AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        var context:NSManagedObjectContext = AppDel.managedObjectContext!
-        var request = NSFetchRequest(entityName: "HazardOrigin")
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "HazardOrigin")
         
         request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "origin = %@", val)
         
-        var results:NSArray = context.executeFetchRequest(request, error: nil)!
+        let results:NSArray = try! context.executeFetchRequest(request)
         
         if results.count > 0 {
-            var res = results[0] as! NSManagedObject
+            let res = results[0] as! NSManagedObject
             id = res.valueForKey("id") as! Int
         }else{
-            print("error finding hazard impact!")
+            print("error finding hazard impact!", terminator: "")
         }
         
         
