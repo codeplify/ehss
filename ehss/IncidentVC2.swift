@@ -15,6 +15,8 @@ protocol IncidentDelegate {
 
 class IncidentVC2: UIViewController,UITextFieldDelegate {
 
+    let commonUtils = CommonUtils.sharedInstance
+    
     
     var popDatePicker:PopDatePicker?
     var popLocationPicker:PopLocationPicker?
@@ -32,11 +34,21 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
     @IBOutlet weak var txtActivity: UITextField!
     @IBOutlet weak var txtDescription: UITextField!
     @IBOutlet weak var txtNature: UITextField!
+    @IBOutlet weak var lblU: UILabel!
     
+    @IBOutlet weak var lblDate: UILabel!
+
     var delegate:IncidentDelegate? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        txtDate.text = commonUtils.currentDate()
+        txtTime.text = commonUtils.currentTime()
+        lblU.text = commonUtils.currentUser()
+        
+        lblDate.text = commonUtils.currentDate()
         
         popDatePicker = PopDatePicker(forTextField:txtDate)
         txtDate.delegate = self
@@ -147,22 +159,12 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
     @IBAction func goNature(sender: UIButton) {
         
         
-        
-        
-        
-        
-       // if validate() {
+       if validate() {
             
-        
-            
-        
-       // }
-        
-        
         let formatter = NSDateFormatter()
         formatter.dateStyle = .ShortStyle
         formatter.timeStyle = .NoStyle
-
+        
         let secondTab = self.tabBarController?.viewControllers![1] as! AccordionMenuTableViewController
         
         let company = txtCompany.text! as String
@@ -176,20 +178,26 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
         let activity = txtActivity.text! as String
         let description = txtDescription.text! as String
         let location = getLocation(txtLocation.text! as String)
-    
+        
         
         
         //set in the next tab -> userId, natureId, username, password
         
         
         let incident:Incident = Incident(userId: 2, date: date, time: time, companyId: companyId, departmentId: departmentId, activity: activity, description: description, natureId: 0, location: location, natureCat: 0,image:"")
-       
+        
         
         secondTab.transferValue = "loey agdan"
         secondTab.incident = incident
         
         
         self.tabBarController?.selectedIndex = 1
+            
+        
+       }
+        
+        
+
         
     }
     
@@ -264,22 +272,28 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
         var ret:Bool
         
         if txtDate.text == "" {
+            Alert.show("Error", message: "Date is required", vc: self)
             ret = false
         }
         
         else if txtTime.text == "" {
+            Alert.show("Error", message: "Time is required", vc: self)
             ret = false
         }
         
         else if txtLocation.text == "" {
+            Alert.show("Error", message: "Location is required", vc: self)
             ret = false
         }
         
         else if txtCompany.text == "" {
+            
+            Alert.show("Error", message: "Company is required", vc: self)
             ret = false
         }
         
         else if txtDepartment.text == "" {
+            Alert.show("Error", message: "Department is required", vc: self)
             ret = false
             
         }else {

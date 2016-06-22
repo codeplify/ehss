@@ -9,6 +9,10 @@
 import UIKit
 import CoreData
 
+protocol HazardListDelegate{
+    func sendHazard(id :Int)
+}
+
 class hazardListVC: UITableViewController {
      var hazardArray:[hazardShort] = [hazardShort]()
     
@@ -16,7 +20,11 @@ class hazardListVC: UITableViewController {
         var location: Int
         var name: String
         var id:Int
+        
     }
+    
+    var delegate:HazardListDelegate! = nil
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,8 +47,15 @@ class hazardListVC: UITableViewController {
         if results.count > 0 {
             
             for res in results {
-                let h:hazardShort? = hazardShort(location: (res.valueForKey("location") as? Int)!, name: (res.valueForKey("name") as? String)!, id:(res.valueForKey("id") as? Int)!)
                 
+                //managedObjectIDForURIRepresentation
+                //let i = res.identifier! as String
+                
+               // let i:String = (res.identifier)!
+                
+                
+                let h:hazardShort? = hazardShort(location: (res.valueForKey("location") as? Int)!, name: (res.valueForKey("name") as? String)!, id:(res.valueForKey("id") as? Int)!)
+                //print("res identifier : \(i)")
                 hazardArray.append(h!)
             }
         }
@@ -56,13 +71,13 @@ class hazardListVC: UITableViewController {
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         // #warning Potentially incomplete method implementation.
         // Return the number of sections.
-        return hazardArray.count
+        return 1
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
-        return 1
+        return hazardArray.count
     }
 
     @IBOutlet weak var btnMenuList: UIBarButtonItem!
@@ -77,6 +92,48 @@ class hazardListVC: UITableViewController {
         cell.lblID.text = "\(h.id)"
         
         return cell
+    }
+    
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+       
+        /*
+         let storyboard : UIStoryboard = UIStoryboard(name: "AccountStoryboard", bundle: nil)
+         let vc : WelcomeViewController = storyboard.instantiateViewControllerWithIdentifier("WelcomeID") as WelcomeViewController
+         vc.teststring = "hello"
+         
+         let navigationController = UINavigationController(rootViewController: vc)
+         
+         self.presentViewController(navigationController, animated: true, completion: nil)
+         */
+        //if (delegate != nil){
+                      
+            let story: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+            
+            let editVC: hazardVC = story.instantiateViewControllerWithIdentifier("HazardVC") as! hazardVC
+            
+            editVC.hazardId = hazardArray[indexPath.row].id
+        
+            let navigationController = UINavigationController(rootViewController: editVC)
+            self.presentViewController(navigationController, animated: true, completion: nil)
+        
+        
+        //}
+        
+        //let storyboard: UIStoryboard = self.storyboard!
+        
+        
+        
+        
+        /*
+         
+        let hazardSelected = hazardArray[indexPath.row]
+        
+        let editVC:hazardVC = self.storyboard?.instantiateViewControllerWithIdentifier("HazardVC") as! hazardVC
+        
+        self.presentViewController(editVC, animated: true, completion: nil)
+         
+         */
+        //Alert.show("Hazard", message: "Id: \(hazardSelected.id) , Name: \(hazardSelected.name)", vc: self)
     }
     
     func getLocationName(let val : Int) ->String {

@@ -111,12 +111,10 @@ class ViewController: UIViewController,UIImagePickerControllerDelegate, UINaviga
                         print("Role: \(role)", terminator: "")
                         print(json, terminator: "")
                     
-                            //object.intProperty = NSNumber(int:Int(item["id"] as String))
-                    
-                    //let AppDel:AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+                   //object.intProperty = NSNumber(int:Int(item["id"] as String))
+                   //let AppDel:AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
                    // let context:NSManagedObjectContext = AppDel.managedObjectContext!
-                    
-                    //let newUser = NSEntityDescription.insertNewObjectForEntityForName("User", inManagedObjectContext: context)
+                   //let newUser = NSEntityDescription.insertNewObjectForEntityForName("User", inManagedObjectContext: context)
                     
                 }
                 

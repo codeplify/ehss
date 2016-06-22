@@ -18,4 +18,12 @@ extension NSDate {
         formatter.timeStyle = .NoStyle;
         return formatter.stringFromDate(self)
     }
+    
+    
+    func toTimeMediumString() -> NSString?{
+        let formatter = NSDateFormatter()
+        formatter.dateStyle = .NoStyle
+        formatter.timeStyle = .MediumStyle
+        return formatter.stringFromDate(self)
+    }
 }

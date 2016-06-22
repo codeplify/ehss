@@ -10,6 +10,7 @@
 		0C0031311D179B4C00380BE7 /* PopAllUsersPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0031301D179B4C00380BE7 /* PopAllUsersPicker.swift */; };
 		0C0031341D179C0900380BE7 /* PopAllUsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0031321D179C0900380BE7 /* PopAllUsersViewController.swift */; };
 		0C0031351D179C0900380BE7 /* PopAllUsersPicker.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0C0031331D179C0900380BE7 /* PopAllUsersPicker.xib */; };
+		0C09637E1D1A774E00A7D42A /* CommonUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C09637D1D1A774E00A7D42A /* CommonUtils.swift */; };
 		0C0CC7711CBB4E6D00DAE8C7 /* PopDeptViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0CC76F1CBB4E6D00DAE8C7 /* PopDeptViewController.swift */; };
 		0C0CC7721CBB4E6D00DAE8C7 /* PopDeptPicker.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0C0CC7701CBB4E6D00DAE8C7 /* PopDeptPicker.xib */; };
 		0C0CC7741CBB4E8200DAE8C7 /* PopDeptPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0CC7731CBB4E8200DAE8C7 /* PopDeptPicker.swift */; };
@@ -34,6 +35,8 @@
 		0C3EB0CE1CF6D19100C374FB /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 0C3EB0C91CF6D19100C374FB /* index.html */; };
 		0C3EB0D01CF6EF2100C374FB /* RiskMatrixVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3EB0CF1CF6EF2100C374FB /* RiskMatrixVC.swift */; };
 		0C407FE61CBF7EEE00A4F50A /* Hazard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C407FE51CBF7EEE00A4F50A /* Hazard.swift */; };
+		0C4753321D190D8400D8AC20 /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4753311D190D8400D8AC20 /* Alert.swift */; };
+		0C4753341D191B8600D8AC20 /* CoreDataUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4753331D191B8600D8AC20 /* CoreDataUtility.swift */; };
 		0C4AEE9D1CBE36450050A79B /* PopLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4AEE9B1CBE36450050A79B /* PopLocationViewController.swift */; };
 		0C4AEE9E1CBE36450050A79B /* PopLocationPicker.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0C4AEE9C1CBE36450050A79B /* PopLocationPicker.xib */; };
 		0C5081961CFC2DF500E8872F /* PopupCustomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5081951CFC2DF500E8872F /* PopupCustomView.swift */; };
@@ -192,6 +195,7 @@
 		0C0031301D179B4C00380BE7 /* PopAllUsersPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopAllUsersPicker.swift; sourceTree = "<group>"; };
 		0C0031321D179C0900380BE7 /* PopAllUsersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopAllUsersViewController.swift; sourceTree = "<group>"; };
 		0C0031331D179C0900380BE7 /* PopAllUsersPicker.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PopAllUsersPicker.xib; sourceTree = "<group>"; };
+		0C09637D1D1A774E00A7D42A /* CommonUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonUtils.swift; sourceTree = "<group>"; };
 		0C0CC76F1CBB4E6D00DAE8C7 /* PopDeptViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopDeptViewController.swift; sourceTree = "<group>"; };
 		0C0CC7701CBB4E6D00DAE8C7 /* PopDeptPicker.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PopDeptPicker.xib; sourceTree = "<group>"; };
 		0C0CC7731CBB4E8200DAE8C7 /* PopDeptPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopDeptPicker.swift; sourceTree = "<group>"; };
@@ -217,6 +221,8 @@
 		0C3EB0C91CF6D19100C374FB /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		0C3EB0CF1CF6EF2100C374FB /* RiskMatrixVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RiskMatrixVC.swift; path = ../RiskMatrixVC.swift; sourceTree = "<group>"; };
 		0C407FE51CBF7EEE00A4F50A /* Hazard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hazard.swift; sourceTree = "<group>"; };
+		0C4753311D190D8400D8AC20 /* Alert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
+		0C4753331D191B8600D8AC20 /* CoreDataUtility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataUtility.swift; sourceTree = "<group>"; };
 		0C4AEE9B1CBE36450050A79B /* PopLocationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopLocationViewController.swift; sourceTree = "<group>"; };
 		0C4AEE9C1CBE36450050A79B /* PopLocationPicker.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PopLocationPicker.xib; sourceTree = "<group>"; };
 		0C50817D1CFC27D200E8872F /* Pods.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Pods.xcodeproj; path = Pods/Pods.xcodeproj; sourceTree = "<group>"; };
@@ -416,6 +422,9 @@
 			isa = PBXGroup;
 			children = (
 				0CC097721CAE4D690064AFDF /* DateUtils.swift */,
+				0C4753311D190D8400D8AC20 /* Alert.swift */,
+				0C4753331D191B8600D8AC20 /* CoreDataUtility.swift */,
+				0C09637D1D1A774E00A7D42A /* CommonUtils.swift */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -887,6 +896,7 @@
 				0C3EB0D01CF6EF2100C374FB /* RiskMatrixVC.swift in Sources */,
 				0C63A1721C9BD8050035D24F /* loginVC.swift in Sources */,
 				0C94B1811CBF450C0021390E /* PopHazardTypeViewController.swift in Sources */,
+				0C4753321D190D8400D8AC20 /* Alert.swift in Sources */,
 				0C6E03A31CD0587D00E62F29 /* PopTimeViewController.swift in Sources */,
 				0C720A301CDA0043002473DC /* hazardListVC.swift in Sources */,
 				0C0031311D179B4C00380BE7 /* PopAllUsersPicker.swift in Sources */,
@@ -895,6 +905,7 @@
 				0C0CC7741CBB4E8200DAE8C7 /* PopDeptPicker.swift in Sources */,
 				0C30AA721D12A290003D3FDC /* IncidentTabController.swift in Sources */,
 				0C26907E1CF2E58100707B8D /* DashboardViewController.swift in Sources */,
+				0C4753341D191B8600D8AC20 /* CoreDataUtility.swift in Sources */,
 				0C1D16141CDAFBDE002FE3B2 /* selectNatureListVC.swift in Sources */,
 				0CB3065C1CE993B200241751 /* auditListCell.swift in Sources */,
 				0C12E9B71D067BD300E847E2 /* HotspotMapController.swift in Sources */,
@@ -919,6 +930,7 @@
 				0C0031341D179C0900380BE7 /* PopAllUsersViewController.swift in Sources */,
 				0C407FE61CBF7EEE00A4F50A /* Hazard.swift in Sources */,
 				0CE3D8B91CE714AD0095C790 /* auditInspectionListVC.swift in Sources */,
+				0C09637E1D1A774E00A7D42A /* CommonUtils.swift in Sources */,
 				0C4AEE9D1CBE36450050A79B /* PopLocationViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

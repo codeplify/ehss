@@ -10,23 +10,6 @@ import Foundation
 
 struct Incident{
 
-    /*
-     var date: String
-     var time: String
-     var location: Int
-     var company: Int
-     var department: Int
-     var activity: String
-     var description: String
-     var userId:Int
-     var user:String
-     var password: String
-     var nature:Int
-     var nature_category: Int
-     var image: String
-     
-     
-     */
     var userId:Int?
     var date:String?
     var time:String?

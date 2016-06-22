@@ -1,9 +1,13 @@
 import UIKit
 import CoreData
 
-class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+
+
+class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     
     var imagePicker = UIImagePickerController()
+    var hazard:Hazard?
+    var hazardId:Int = 0
     
     var popDatePicker : PopDatePicker?
     var popCompanyPicker: PopCompanyPicker?
@@ -16,6 +20,9 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
     
     var userPref = NSUserDefaults.standardUserDefaults()
     
+    func sendHazard(hazard: Hazard) {
+        
+    }
     
     @IBOutlet weak var lblUserFull: UILabel!
     @IBOutlet weak var lblDate: UILabel!
@@ -38,6 +45,15 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         return "\(dateFormatter.stringFromDate(date))"
     }
     
+    func currentTime() -> String {
+        let date = NSDate()
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateStyle = .NoStyle
+        dateFormatter.timeStyle = .MediumStyle
+        
+        return "\(dateFormatter.stringFromDate(date))"
+    }
+    
     //static var hazard:Hazard = Hazard()
     
     struct Hazard {
@@ -51,7 +67,6 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         var hazardImpact2:Int
         var hazardName:String
         var hazardDescription:String
-        
     }
 
     var hazardObject = Hazard(time: "", date: "", company: 0, department: 0, location: 0, hazardType: 0, hazardImpact: 0, hazardImpact2: 0, hazardName: "", hazardDescription: "")
@@ -73,12 +88,143 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
     
     @IBOutlet weak var btnListAll: UIBarButtonItem!
     
+    @IBOutlet weak var btnSubmitForLabel: UIButton!
     
     var activeField: UITextField?
+    
+    func getHazard(let id:Int) -> Hazard{
+        
+        
+        
+        var hazard:Hazard = Hazard(time: "", date: "", company: 0, department: 0, location: 0, hazardType: 0, hazardImpact: 0, hazardImpact2: 0, hazardName: "", hazardDescription: "")
+        
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Hazard")
+        request.returnsObjectsAsFaults = false
+        request.predicate = NSPredicate(format: "id = %@", "\(id)")
+        
+        do{
+            let result:NSArray = try context.executeFetchRequest(request)
+            
+            if result.count > 0 {
+                
+                let description = result[0].valueForKey("desc") as! String
+                
+                hazard.hazardDescription = description
+                
+            }
+            
+            
+        }catch {
+            
+        }
+        
+        
+        return hazard
+        
+    }
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let coreUtil = CoreDataUtility()
+        
+        
+        
+        txtTime.text = "\(currentTime())"
+        txtDate.text = "\(currentDate())"
+        
+        if hazardId > 0 {
+            
+            //Alert.show("Hazard", message: "Load Hazard", vc: self)
+            
+            let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+            
+            let context:NSManagedObjectContext = AppDel.managedObjectContext!
+            let request = NSFetchRequest(entityName: "Hazard")
+            request.returnsObjectsAsFaults = false
+            request.predicate = NSPredicate(format: "id = %@", "\(hazardId)")
+            
+            
+            btnSubmitForLabel.setTitle("Update", forState: UIControlState.Normal)
+            
+            do{
+                let result:NSArray = try context.executeFetchRequest(request)
+                
+                if result.count > 0 {
+                    
+                    let description = result[0].valueForKey("desc") as! String
+                    let company_id = result[0].valueForKey("company_id") as! Int
+                    let department = result[0].valueForKey("department") as! Int
+                    let date = result[0].valueForKey("date") as! String
+                    let hazard_type = result[0].valueForKey("hazard_type") as! Int
+                    let id = result[0].valueForKey("id") as! Int
+                    let impact = result[0].valueForKey("impact") as! Int
+                    let is_sync = result[0].valueForKey("is_sync") as! Int
+                    let location = result[0].valueForKey("location") as! Int
+                    let name = result[0].valueForKey("name") as! String
+                    let type = result[0].valueForKey("type") as! Int
+                    let user_id = result[0].valueForKey("user_id") as! Int
+                    
+                    
+                    hazardDescription.text = description
+                    txtCompany.text = CoreDataUtility.getCompany(company_id)
+                    txtDept.text = CoreDataUtility.getDepartment(department)
+                    txtDate.text = "\(date)"
+                    txtHazardType.text = CoreDataUtility.getHazardType(hazard_type)
+                    txtHazardImpact.text = CoreDataUtility.getHazardImpact(impact)
+                    txtLocation.text = CoreDataUtility.getLocation(location)
+                    hazardName.text = "\(name)"
+                    txtHazardImpact2.text = CoreDataUtility.getHazardImpact(type)
+                    
+                    
+                    //Singleton
+                    
+                    let coreData = CoreDataUtility.sharedInstance
+                    
+                    
+                    if CoreDataUtility.isSync(hazardId, entity: "Hazard", comparator: "id") {
+                        
+                        hazardDescription.enabled = false
+                        txtCompany.enabled = false
+                        txtDept.enabled = false
+                        txtDate.enabled = false
+                        txtHazardType.enabled = false
+                        txtHazardImpact.enabled = false
+                        txtHazardImpact2.enabled = false
+                        txtLocation.enabled = false
+                        hazardName.enabled = false
+                        
+                        
+                        /*
+                         
+                        var hazard:Hazard = Hazard()
+                        
+                        hazard.hazardDescription = description
+                        hazard.company = company_id
+                        hazard.department = department
+                        hazard.date = date
+                        hazard.hazardType = hazard_type
+                        hazard.hazardImpact = impact
+                        hazard.location = location
+                        hazard.hazardName = name
+                        hazard.hazardImpact2 = type
+                        
+                         */
+                        
+                    }
+                    
+                }
+                
+                
+            }catch {
+                
+            }
+            
+        }
         
         
         let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
@@ -139,6 +285,9 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
             btnListAll.target = self.revealViewController()
             btnListAll.action = "revealToggle:"
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
+        }else{
+            //redirect here to dashboard
+            print("reveal view controller doesnt exist!")
         }
         
         //hazardName.delegate = self
@@ -146,6 +295,18 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         
     }
     
+    @IBAction func revealCall(sender: AnyObject) {
+        if self.revealViewController() != nil {
+            btnListAll.target = self.revealViewController()
+            btnListAll.action = "revealToggle:"
+            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
+        }else{
+            print("reveal view controller doesnt exist!")
+           
+            //self.performSegueWithIdentifier("toDashboard2", sender: self)
+        }
+        print("reveal is call")
+    }
     func resign() {
         
         txtDate.resignFirstResponder()
@@ -308,102 +469,13 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         // Dispose of any resources that can be recreated.
     }
     
-    /*override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillShow:"), name: UIKeyboardWillShowNotification, object: nil)
-        
-        NSNotificationCenter.defaultCenter().addObserver("keyboardWillHide:", selector: "keyboardWillHide", name: UIKeyboardWillHideNotification, object: nil)
-        
-    } */
-    
-   
-    
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         NSNotificationCenter.defaultCenter().removeObserver(self)
         
         
-        //view.endEditing(true)
-        /*
-         if let userInfo = notification.userInfo {
-            if let keyboardSize = (userInfo[UIKeyboardFrameBeginUserInfoKey])?.CGRectValue(){
-                kbHeight = keyboardSize.height
-                self.animateTextField(true)
-            }
-         }
-         */
-        
-        
     }
-    
-    //func keyboardWillShow(notification: NSNotification){
-        
-        //view.endEditing(true)
-        
-        /*let userInfor = notification.userInfo
-        let keyboardSize = (userInfor![UIKeyboardFrameBeginUserInfoKey])?.CGRectValue()
-        
-        print("keybaord size \(keyboardSize)")
-        if let userInfo = notification.userInfo {
-            if let keyboardSize = (userInfo[UIKeyboardFrameBeginUserInfoKey])?.CGRectValue(){
-                kbHeight = keyboardSize.height
-                self.animateTextField(true)
-                 print("keybaord size \(keyboardSize)")
-            }
-        } */
-        
-        /*if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue(){
-            self.view.frame.origin.y -= keyboardSize.height
-        }*/
-        
-       /* self.scrollview.scrollEnabled = true
-        
-        let info: NSDictionary = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue().size
-        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, (keyboardSize?.height)!, 0.0)
-        
-        self.scrollview.contentInset = contentInsets
-        self.scrollview.scrollIndicatorInsets = contentInsets
-        
-        var aRect:CGRect = self.view.frame
-        aRect.size.height -= keyboardSize!.height
-        if let activeFieldPresent = activeField {
-            if(!CGRectContainsPoint(aRect, activeField!.frame.origin)){
-                self.scrollview.scrollRectToVisible(activeField!.frame, animated: true)
-            }
-        }
-        
-        
-    }*/
-    
-    /*func animateTextField(up: Bool){
-        let movement = (up ? -kbHeight : kbHeight)
-        
-        UIView.animateWithDuration(0.3, animations: {
-            self.view.frame = CGRectOffset(self.view.frame, 0, movement)
-        })
-    
-    } */
-    
-    
-    //func keyboardWillHide(notification: NSNotification){
-        //self.animateTextField(false)
-        
-        /*if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue(){
-            self.view.frame.origin.y += keyboardSize.height
-        }*/
-        
-        
-        /*let info: NSDictionary = notification.userInfo!
-        let keyboardSize = (info[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue().size
-        let contentInsets : UIEdgeInsets = UIEdgeInsetsMake(0.0, 0.0, -(keyboardSize?.height)!, 0.0)
-        self.scrollview.scrollIndicatorInsets = contentInsets
-        self.view.endEditing(true)
-        self.scrollview.scrollEnabled = false*/
-        
-        
-    //}
+
 
     @IBAction func openDate(sender: UIButton){
         
@@ -424,7 +496,16 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
             print("Hazard Name: \(hazardNameText.text)")
             print("Hazard Description:  \(hazardDescText.text)")
             
-            hazardSave(hazardObject)
+            
+            if btnSubmitForLabel.currentTitle == "Update" {
+                
+                Alert.show("Update", message: "Update this hazard", vc: self)
+                hazardUpdate(hazardObject)
+            }else{
+                hazardSave(hazardObject)
+            }
+            
+            
             
         }else{
              print(" fill out all of the data")
@@ -434,11 +515,23 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         
     }
     
+    func hazardUpdate(var h: Hazard){
+        
+        
+        
+        
+    
+    }
+    
     func validateHazard() -> Bool{
         
         var validated = true;
         
         if txtDate.text == ""{
+            
+            Alert.show("Error", message: "Date is empty", vc: self)
+            
+            
             print("Date is empty")
             validated = false
             return validated;
@@ -522,6 +615,7 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
        print("hazard object id \(newHazard.objectID)")
 
         //newHazard.setValue(newHazard.objectID, forKey: "id")
+        newHazard.setValue(CoreDataUtility.getIncrementedId(), forKey: "id")
         newHazard.setValue(h.company, forKey: "company_id")
         newHazard.setValue(h.date, forKey: "date")
         newHazard.setValue(h.department, forKey: "department")
@@ -536,7 +630,12 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         newHazard.setValue(hazardName.text, forKey: "name")
         newHazard.setValue(txtTime.text, forKey: "time")
         newHazard.setValue(h.hazardImpact2, forKey: "type")
-        newHazard.setValue(userId, forKey: "user_id") //get value from shared preference
+        newHazard.setValue(userId, forKey: "user_id")
+        newHazard.setValue(1, forKey: "is_sync")
+        
+        
+        
+        //get value from shared preference
         
         //get sign in of user login
         
@@ -551,19 +650,20 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         print("impact: \(h.hazardImpact)")
         print("type: \(h.hazardImpact2) ")
         print("user_id: \(userId)")
+        print("===========save local ends")
         
         
         
         
-        /*
-         redo later
+        
+        // redo later
         
         do {
             try context.save()
         } catch _ {
-        } */
+        }
         
-        print("Saved => \(newHazard)")
+        //print("Saved => \(newHazard)")
 
         
         let formatter = NSDateFormatter()
@@ -584,8 +684,45 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         request.HTTPMethod = "POST"
         
         let hazardN:String = hazardName.text! as String
+        let hazardD:String = hazardDescription.text! as String
         
-        let params = ["date":"\(formatter.stringFromDate(formatter.dateFromString(h.date)!))","description":"\(hazardDescription.text!)","hazard_type":"\(h.hazardType)","hazard_impact":"\(h.hazardImpact)","company":"\(h.company)","department":"\(h.department)","location":"\(h.location)","type_add":"\(h.hazardImpact2)","name":"\(hazardN)","user_id":"\(userId)","image_attachment":"\(imageAtt)","username":"\(username)","password":"\(password)"] as Dictionary<String, String>
+        let params = [
+            "date":"\(formatter.stringFromDate(formatter.dateFromString(h.date)!))",
+            "description":"\(hazardD)",
+            "hazard_type":"\(h.hazardType)",
+            "hazard_impact":"\(h.hazardImpact)",
+            "company":"\(h.company)",
+            "department":"\(h.department)",
+            "location":"\(h.location)",
+            "type_add":"\(h.hazardImpact2)",
+            "name":"\(hazardN)",
+            "user_id":"\(userId)",
+            "image_attachment":"\(imageAtt)",
+            "username":"\(username)",
+            "password":"\(password)"
+            ] as Dictionary<String, String>
+        
+        
+            for(key, value) in params{
+                print("\(key): \(value)")
+            }
+        
+        print("Params to send ====>")
+        print("date => \(formatter.stringFromDate(formatter.dateFromString(h.date)!))")
+        print("description => \(hazardD)")
+        print("hazard description => \(h.hazardType)")
+        print("hazard impact => \(h.hazardImpact)")
+        print("company => \(h.company)")
+        print("department => \(h.department)")
+        print("location => \(h.location)")
+        print("type add => \(h.hazardImpact2)")
+        print("name => \(hazardN)")
+        print("user id => \(userId)")
+        print("image => \(imageAtt)")
+        print("username => \(username)")
+        print("password => \(password)")
+        print("=====================>end")
+        
         
         let paramLength = "\(postString.characters.count)"
         
@@ -646,13 +783,19 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
            
         }
         
-        //task.resume()
+        
         
         clearForm()
+        
+        task.resume()
+        
+        
         
         //redirect to list
       
     }
+    
+    
     
     func clearForm(){
         
@@ -666,6 +809,8 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         hazardDescription.text = ""
         hazardName.text = ""
         txtTime.text = "" //set as current date
+        
+        //redirect to
     
     }
     
