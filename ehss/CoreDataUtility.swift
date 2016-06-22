@@ -56,6 +56,31 @@ class CoreDataUtility: NSObject {
     
     }
     
+    static func getUserId(let username:String)-> Int{
+        
+        var userId:Int = 0
+        
+        let context = instantiateContext()
+        let request = NSFetchRequest(entityName: "AllUser")
+        
+        request.returnsObjectsAsFaults = false
+        request.predicate = NSPredicate(format: "email = %@", "\(username)")
+        
+        do{
+            let result:NSArray = try context.executeFetchRequest(request)
+            
+            if result.count > 0 {
+                userId = result[0].valueForKey("id") as! Int
+            }
+        }catch{
+            userId = 0
+        }
+        
+        
+        
+        return userId
+    }
+    
     
     static func getCompany(let id: Int)->String{
         

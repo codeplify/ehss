@@ -17,7 +17,7 @@ var subdomain = ""
 class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,UITableViewDelegate,IncidentDelegate{
     
     var incident : Incident? = nil
-    
+    var selectedNature = ""
 
     @IBOutlet weak var tableView: UITableView!
     var parentMenu:[String] = ["Safety","Environment","Health","Security"]
@@ -31,21 +31,15 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
             username = userPref.valueForKey("ehss_username") as! String
             password = userPref.valueForKey("ehss_password") as! String
             subdomain = userPref.valueForKey("subdomain") as! String
-            
            
-            
-        
-        
         }
         
         let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
         let context:NSManagedObjectContext = AppDel.managedObjectContext!
         let newIncident = NSEntityDescription.insertNewObjectForEntityForName("Noi", inManagedObjectContext: context)
-        
-        
-        
+        let getNatureVar = getNatureIds(selectedNature)
         if(incident != nil){
-            let getNatureVar = getNatureIds("")
+            
             newIncident.setValue(incident?.departmentId, forKey: "department")
             newIncident.setValue(incident?.description, forKey: "desc")
             newIncident.setValue(getNatureVar.0, forKey:"nature")
@@ -55,7 +49,7 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
             newIncident.setValue(incident?.location, forKey: "location") // load camera image
             newIncident.setValue(incident?.description, forKey: "desc")
             newIncident.setValue(incident?.activity, forKey: "activity")
-            newIncident.setValue(2, forKey: "user_id")
+            newIncident.setValue(CoreDataUtility.getUserId(username), forKey: "user_id")
             newIncident.setValue(incident?.companyId, forKey: "company_id")
             newIncident.setValue(incident?.image, forKey: "image")
             
@@ -67,9 +61,17 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
             }
         }
         
-
+        print("department: \(incident!.departmentId)")
+        print("date\(incident!.description)")
+        print("time \(incident!.time)")
+        print("location\(incident!.location)")
+        print("nature\(getNatureVar.0)")
+        print("nature_category\(getNatureVar.1)")
+        print("desc\(incident!.description)")
+        print("activity\(incident!.activity)")
+        print("company_id: \(incident!.companyId)")
         
-            saveOnline(incident!)
+       // saveOnline(incident!)
         
     }
     
@@ -572,6 +574,15 @@ extension AccordionMenuTableViewController {
             
             // The value of the child is indexPath.row - actualPosition - 1
             NSLog("The value of the child is \(self.dataSource[parent].childs[indexPath.row - actualPosition - 1])")
+            
+            Alert.show("Selected value", message: "\(self.dataSource[parent].childs[indexPath.row - actualPosition - 1])", vc: self)
+            
+        selectedNature = "\(self.dataSource[parent].childs[indexPath.row - actualPosition - 1])"
+            
+            print("Nature: \(selectedNature)")
+            
+            print("Nature 1: \(getNatureIds(selectedNature).0)")
+            print("Nature 2: \(getNatureIds(selectedNature).1)")
             
             return
         }

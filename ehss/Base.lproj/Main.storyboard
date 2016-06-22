@@ -497,6 +497,12 @@
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZEA-qd-y8I">
+                                            <rect key="frame" x="86" y="66" width="42" height="21"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j9i-PZ-BQT">
                                             <rect key="frame" x="86" y="18" width="275" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -506,6 +512,7 @@
                                     </subviews>
                                 </tableViewCellContentView>
                                 <connections>
+                                    <outlet property="lblID" destination="ZEA-qd-y8I" id="m8P-MB-7UT"/>
                                     <outlet property="lblLocation" destination="7Hd-Uq-cD0" id="Lg9-r4-HIy"/>
                                     <outlet property="lblName" destination="j9i-PZ-BQT" id="2Jm-Ts-KSr"/>
                                 </connections>
@@ -855,7 +862,7 @@
                         <viewControllerLayoutGuide type="bottom" id="OOI-Uz-WAT"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="Rdv-C3-NDH">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="507" height="768"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="UAu-0u-mht">
@@ -898,11 +905,12 @@
                             <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="z6s-Ob-naD">
                                 <rect key="frame" x="0.0" y="64" width="507" height="60"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9On-Li-Yje">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9On-Li-Yje">
                                         <rect key="frame" x="450" y="15" width="34" height="30"/>
                                         <state key="normal" title="Save"/>
                                         <connections>
                                             <action selector="btnSubmitAction:" destination="Uzh-hX-ECA" eventType="touchUpInside" id="epQ-DI-fzD"/>
+                                            <segue destination="xgc-rz-P3e" kind="show" id="8Tu-0X-b0C"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -913,6 +921,10 @@
                                     <constraint firstAttribute="trailing" secondItem="9On-Li-Yje" secondAttribute="trailing" constant="23" id="dAT-O4-NaG"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ev9-V8-JlP">
+                                <rect key="frame" x="10" y="74" width="162" height="36"/>
+                                <state key="normal" title="Record an Incident"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -932,13 +944,14 @@
                         </variation>
                     </view>
                     <tabBarItem key="tabBarItem" title="NATURE OF INCIDENT" image="ic_folder_open_black_24dp" id="AsC-B0-o2f"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="iPad-1/2"/>
                     <connections>
                         <outlet property="tableView" destination="UAu-0u-mht" id="Zro-ew-KgF"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SVg-PJ-d4x" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2132.5" y="-3293"/>
+            <point key="canvasLocation" x="1995.5" y="-3441.5"/>
         </scene>
         <!--Table View Controller-->
         <scene sceneID="48G-eC-xoY">
@@ -2419,11 +2432,12 @@
         <image name="settings1" width="32" height="32"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="RPb-Fk-TfY"/>
-        <segue reference="872-EC-dz1"/>
         <segue reference="y2g-fx-eaK"/>
+        <segue reference="RPb-Fk-TfY"/>
         <segue reference="mnS-hc-9uB"/>
+        <segue reference="872-EC-dz1"/>
         <segue reference="y1S-9o-eKx"/>
         <segue reference="w6l-NN-JeV"/>
+        <segue reference="8Tu-0X-b0C"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -12,6 +12,9 @@ class incidentListCell: UITableViewCell {
 
     @IBOutlet weak var lblLocation: UILabel!
     @IBOutlet weak var lblName: UILabel!
+    
+    @IBOutlet weak var lblID: UILabel!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
