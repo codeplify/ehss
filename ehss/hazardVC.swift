@@ -5,10 +5,13 @@ import CoreData
 
 class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     
-    var imagePicker = UIImagePickerController()
+    
+    // MARK:- Property Delegates Declaration
+    
+    let imgPicker = UIImagePickerController()
+    
     var hazard:Hazard?
     var hazardId:Int = 0
-    
     var popDatePicker : PopDatePicker?
     var popCompanyPicker: PopCompanyPicker?
     var popDeptPicker: PopDeptPicker?
@@ -17,44 +20,83 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
     var popHazardImpactPicker: PopHazardTypePicker?
     var popHazardImpactPicker2: PopHazardTypePicker?
     var popTimePicker: PopDatePicker?
-    
+    @IBOutlet weak var imgAttachment: UIImageView!
     var userPref = NSUserDefaults.standardUserDefaults()
     
-    func sendHazard(hazard: Hazard) {
+    
+    // MARK:- UIView Declaration
+    @IBOutlet weak var txtTime: UITextField!
+    @IBOutlet weak var txtDate: UITextField!
+    @IBOutlet weak var txtCompany: UITextField!
+    @IBOutlet weak var txtDept: UITextField!
+    @IBOutlet weak var txtLocation: UITextField!
+    @IBOutlet weak var txtHazardType: UITextField!
+    @IBOutlet weak var txtHazardImpact: UITextField!
+    @IBOutlet weak var txtHazardImpact2: UITextField!
+    @IBOutlet weak var hazardName: UITextField!
+    @IBOutlet weak var hazardDescription: UITextField!
+    @IBOutlet weak var hazardNameText: UITextField!
+    @IBOutlet weak var hazardDescText: UITextField!
+    @IBOutlet weak var scrollview: UIScrollView!
+    @IBOutlet weak var btnListAll: UIBarButtonItem!
+    @IBOutlet weak var btnSubmitForLabel: UIButton!
+    
+    var activeField: UITextField?
+    @IBOutlet weak var lblUserFull: UILabel!
+    @IBOutlet weak var lblDate: UILabel!
+    @IBOutlet weak var btnAttachment: UIButton!
+    
+    
+    
+    // MARK:- Capture Image using Camera
+    
+    @IBAction func captureImage(sender: AnyObject) {
+        
+            imgPicker.allowsEditing = false
+            imgPicker.sourceType = UIImagePickerControllerSourceType.Camera
+            imgPicker.cameraCaptureMode = .Photo
+            imgPicker.modalPresentationStyle = .FullScreen
+            presentViewController(imgPicker, animated: true, completion: nil)
         
     }
     
-    @IBOutlet weak var lblUserFull: UILabel!
-    @IBOutlet weak var lblDate: UILabel!
-    
-    
-    @IBOutlet weak var btnAttachment: UIButton!
+    // MARK:- Select Image Attachment
     
     @IBAction func btnAttached(sender: UIButton) {
         
-        imagePicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
-        presentViewController(imagePicker, animated: true, completion: nil)
+       /* imgPicker.allowsEditing = false
+        imgPicker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
         
-    }
-    
-    func currentDate()->String{
-        let date = NSDate()
-        let dateFormatter = NSDateFormatter()
-        dateFormatter.dateStyle = NSDateFormatterStyle.LongStyle
-                
-        return "\(dateFormatter.stringFromDate(date))"
-    }
-    
-    func currentTime() -> String {
-        let date = NSDate()
-        let dateFormatter = NSDateFormatter()
-        dateFormatter.dateStyle = .NoStyle
-        dateFormatter.timeStyle = .MediumStyle
+        imgPicker.modalPresentationStyle = .Popover
+        presentViewController(imgPicker, animated: true, completion: nil) */
         
-        return "\(dateFormatter.stringFromDate(date))"
+        let myPickerController = UIImagePickerController()
+        myPickerController.delegate = self
+        myPickerController.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+        
+        self.presentViewController(myPickerController, animated: true, completion: nil)
+
     }
     
-    //static var hazard:Hazard = Hazard()
+    // MARK: Image Picker Delegates 1
+    
+    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    // MARK: Image Picker Delegates 2
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+        
+        let chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
+        
+        imgAttachment.contentMode = .ScaleAspectFit
+        imgAttachment.image = chosenImage
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+
+    
+// MARK:- Hazard Struct Declaration
     
     struct Hazard {
         var time:String
@@ -71,68 +113,14 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
 
     var hazardObject = Hazard(time: "", date: "", company: 0, department: 0, location: 0, hazardType: 0, hazardImpact: 0, hazardImpact2: 0, hazardName: "", hazardDescription: "")
     
-    @IBOutlet weak var txtTime: UITextField!
-    @IBOutlet weak var txtDate: UITextField!
-    @IBOutlet weak var txtCompany: UITextField!
-    @IBOutlet weak var txtDept: UITextField!
-    @IBOutlet weak var txtLocation: UITextField!
-    @IBOutlet weak var txtHazardType: UITextField!
-    @IBOutlet weak var txtHazardImpact: UITextField!
-    @IBOutlet weak var txtHazardImpact2: UITextField!
-    @IBOutlet weak var hazardName: UITextField!
-    @IBOutlet weak var hazardDescription: UITextField!
-    @IBOutlet weak var hazardNameText: UITextField!
-    @IBOutlet weak var hazardDescText: UITextField!
 
-    @IBOutlet weak var scrollview: UIScrollView!
-    
-    @IBOutlet weak var btnListAll: UIBarButtonItem!
-    
-    @IBOutlet weak var btnSubmitForLabel: UIButton!
-    
-    var activeField: UITextField?
-    
-    func getHazard(let id:Int) -> Hazard{
-        
-        
-        
-        var hazard:Hazard = Hazard(time: "", date: "", company: 0, department: 0, location: 0, hazardType: 0, hazardImpact: 0, hazardImpact2: 0, hazardName: "", hazardDescription: "")
-        
-        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        
-        let context:NSManagedObjectContext = AppDel.managedObjectContext!
-        let request = NSFetchRequest(entityName: "Hazard")
-        request.returnsObjectsAsFaults = false
-        request.predicate = NSPredicate(format: "id = %@", "\(id)")
-        
-        do{
-            let result:NSArray = try context.executeFetchRequest(request)
-            
-            if result.count > 0 {
-                
-                let description = result[0].valueForKey("desc") as! String
-                
-                hazard.hazardDescription = description
-                
-            }
-            
-            
-        }catch {
-            
-        }
-        
-        
-        return hazard
-        
-    }
-
-    
+// MARK:- ViewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
         
         let coreUtil = CoreDataUtility()
         
-        
+        imgPicker.delegate = self
         
         txtTime.text = "\(currentTime())"
         txtDate.text = "\(currentDate())"
@@ -295,172 +283,7 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         
     }
     
-    @IBAction func revealCall(sender: AnyObject) {
-        if self.revealViewController() != nil {
-            btnListAll.target = self.revealViewController()
-            btnListAll.action = "revealToggle:"
-            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
-        }else{
-            print("reveal view controller doesnt exist!")
-           
-            //self.performSegueWithIdentifier("toDashboard2", sender: self)
-        }
-        print("reveal is call")
-    }
-    func resign() {
-        
-        txtDate.resignFirstResponder()
-        txtCompany.resignFirstResponder()
-        txtDept.resignFirstResponder()
-        txtLocation.resignFirstResponder()
-        txtHazardType.resignFirstResponder()
-        txtHazardImpact2.resignFirstResponder()
-        txtTime.resignFirstResponder()
-    }
-    
-    func textFieldDidBeginEditing(textField: UITextField!){
-        activeField = textField
-    }
-    
-    func textFieldDidEndEditing(textField: UITextField) {
-        activeField = nil
-    }
-    
-    func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
-        
-        if (textField === txtDate) {
-            resign()
-            let formatter = NSDateFormatter()
-            formatter.dateStyle = .MediumStyle
-            formatter.timeStyle = .NoStyle
-            let initDate : NSDate? = formatter.dateFromString(txtDate.text!)
-            
-            let dataChangedCallback : PopDatePicker.PopDatePickerCallback = { (newDate : NSDate, forTextField : UITextField) -> () in
-                
-                forTextField.text = (newDate.ToDateMediumString() ?? "?") as String
-                
-                self.hazardObject.date = self.txtDate.text! as String
-                print("Hazard object value: \(self.hazardObject.date)", terminator: "")
-            }
-            
-            popDatePicker!.pick(self, initDate: initDate, dataChanged: dataChangedCallback)
-            
-            return false
-        
-          
-        } else if (textField === txtCompany) {
-            resign()
-            let initCompany: NSString? = txtCompany.text
-            
-            let dataChangedCallback : PopCompanyPicker.PopCompanyPickerCallback = {
-                ( newCompany: NSString, newVal : NSInteger,  forTextField: UITextField) -> () in
-                
-                
-               forTextField.text = "\(newCompany)"
-                
-                self.hazardObject.company = self.getCompany(newCompany as String)
-                //print("Company: \(self.hazardObject.company)")
-               self.txtDept.text = ""
-            }
-            
-            popCompanyPicker!.pick(self, initDate:initCompany, dataChanged: dataChangedCallback)
-            
-            
-            return false;
-        }else if (textField === txtDept) {
-            resign()
-           
-            let initDept:NSString? = txtDept.text
-            let dataChangedCallback : PopDeptPicker.PopDeptPickerCallback = {
-                ( newVal: NSString, forTextField: UITextField ) -> () in
-                forTextField.text = "\(newVal)"
-                
-                self.hazardObject.department = self.getDepartment("\(newVal)")
-                
-            }
-            
-            let companyIdVal:Int? = self.getCompany(txtCompany.text! as String)
-            
-            
-        
-            popDeptPicker!.pick(self, initDate: initDept, dataChanged: dataChangedCallback, company:companyIdVal!)
-            
-            return false;
-            
-        }else if (textField === txtLocation){
-            resign()
-            
-            let initLocation:NSString? = txtLocation.text
-            let dataChangedCallback: PopLocationPicker.PopLocationPickerCallback = {
-                (newVal:NSString, forTextField:UITextField) -> () in
-                forTextField.text = "\(newVal)"
-                
-                self.hazardObject.location = self.getLocation("\(newVal)")
-                
-                print("Location \(self.hazardObject.location)", terminator: "");
-                
-            }
-            
-            popLocationPicker!.pick(self, initDate: initLocation, dataChanged: dataChangedCallback)
-            
-            return false
-        
-        }else if(textField === txtHazardType){
-            resign()
-            
-            let initHazardType:NSString? = txtHazardType.text
-            let dataChangedCallback: PopHazardTypePicker.PopHazardTypePickerCallback = {
-                (newVal:NSString, forTextField:UITextField) -> () in
-                forTextField.text = "\(newVal)"
-                
-                self.hazardObject.hazardType = self.getHazardType("\(newVal)")
-            }
-            
-            popHazardTypePicker!.pick(self, initDate: initHazardType, dataChanged: dataChangedCallback, dataHazard:0, dataId:"")
-            return false
-            
-        }else if(textField === txtHazardImpact){
-            
-            let initHazardTypeImpact:NSString? = txtHazardImpact.text
-            let dataChangedCallback: PopHazardTypePicker.PopHazardTypePickerCallback = {
-                (newVal:NSString, forTextField:UITextField) -> () in
-                forTextField.text = "\(newVal)"
-                
-                self.hazardObject.hazardImpact = self.getHazardImpact("\(newVal)")
-            }
-            
-            popHazardImpactPicker!.pick(self, initDate: initHazardTypeImpact, dataChanged: dataChangedCallback, dataHazard:1, dataId:"")
-            return false;
-            
-            
-        }else if(textField === txtHazardImpact2){
-            
-            let initHazardTypeImpact2: NSString? = txtHazardImpact2.text
-            let dataChangedCallback:PopHazardTypePicker.PopHazardTypePickerCallback = {
-                (newVal:NSString, forTextField:UITextField) -> () in
-                forTextField.text = "\(newVal)"
-                
-                self.hazardObject.hazardImpact2 = self.getHazardImpact("\(newVal)")
-            }
-            
-            let dataString = txtHazardImpact.text! as String
-            
-            //print("data string value: \(dataString)")
-            
-            popHazardImpactPicker2!.pick(self, initDate: initHazardTypeImpact2, dataChanged: dataChangedCallback, dataHazard: 2, dataId:dataString)
-            
-            return false;
-        }else {
-            return true
-        }
-    }
-    
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
-        
-        hazardDescription.resignFirstResponder()
-        hazardNameText.resignFirstResponder()
-        return true;
-    }
+
     
     var kbHeight:CGFloat!
 
@@ -500,7 +323,8 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
             if btnSubmitForLabel.currentTitle == "Update" {
                 
                 Alert.show("Update", message: "Update this hazard", vc: self)
-                hazardUpdate(hazardObject)
+                
+                
             }else{
                 hazardSave(hazardObject)
             }
@@ -515,13 +339,7 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         
     }
     
-    func hazardUpdate(var h: Hazard){
-        
-        
-        
-        
-    
-    }
+    // MARK:- Data Validation
     
     func validateHazard() -> Bool{
         
@@ -587,8 +405,15 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         return validated;
     }
     
+}
+
+// MARK:- SAVE to SQLite
+
+extension hazardVC{
+
     
-    func hazardSave(h:Hazard){
+    // MARK: Save Main Function
+    func hazardSave(var h:Hazard){
         
         let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
         let context:NSManagedObjectContext = AppDel.managedObjectContext!
@@ -596,10 +421,10 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         
         //convert integer value to string
         
-      
         
-               var userId:Int = 0
-        let imageAtt:String = ""
+        
+        var userId:Int = 0
+        var imageAtt:String = ""
         var username:String = ""
         var password:String = ""
         var subdomain:String = ""
@@ -612,10 +437,20 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
             
         }
         
-       print("hazard object id \(newHazard.objectID)")
-
+        print("hazard object id \(newHazard.objectID)")
+        
+        /*
+         let base64String = imageData.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.fromRaw(0)!)
+         println(base64String)
+         
+         */
+        
+        let imageData = UIImageJPEGRepresentation(imgAttachment.image!, 0.5)
+        
+        let base64String = imageData?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions(rawValue: 0))
+        
         //newHazard.setValue(newHazard.objectID, forKey: "id")
-        newHazard.setValue(CoreDataUtility.getIncrementedId(), forKey: "id")
+        newHazard.setValue(CoreDataUtility.getIncrementedId("Hazard"), forKey: "id")
         newHazard.setValue(h.company, forKey: "company_id")
         newHazard.setValue(h.date, forKey: "date")
         newHazard.setValue(h.department, forKey: "department")
@@ -623,15 +458,21 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         newHazard.setValue(subdomain, forKey: "domain") //get from shared preference
         newHazard.setValue(h.hazardType, forKey: "hazard_type")
         //newHazard.setValue(, forKey: "id") // default or autocreate
-        newHazard.setValue("", forKey: "image") // load camera image
+        newHazard.setValue(base64String, forKey: "image") // load camera image
         newHazard.setValue(h.hazardImpact, forKey: "impact")
-        newHazard.setValue(0, forKey: "is_sync")
         newHazard.setValue(h.location, forKey: "location")
         newHazard.setValue(hazardName.text, forKey: "name")
         newHazard.setValue(txtTime.text, forKey: "time")
         newHazard.setValue(h.hazardImpact2, forKey: "type")
         newHazard.setValue(userId, forKey: "user_id")
         newHazard.setValue(1, forKey: "is_sync")
+        
+       
+        
+        
+        
+        
+        
         
         
         
@@ -663,23 +504,30 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         } catch _ {
         }
         
-        //print("Saved => \(newHazard)")
-
-        
         let formatter = NSDateFormatter()
         formatter.dateStyle = .ShortStyle
         formatter.timeStyle = .NoStyle;
         
         
+        h.date = formatter.stringFromDate(formatter.dateFromString(h.date)!)
+        h.hazardName = (hazardName.text! as String)
+        h.hazardDescription = (hazardDescription.text! as String)
         
+        multipartFormRequest(h)
+        
+        //print("Saved => \(newHazard)")
+        
+        
+        
+        imageAtt = base64String!
+        
+        //print("base64 - \(base64String)")
         
         let postString = "date=\(formatter.stringFromDate(formatter.dateFromString(h.date)!))&description=\(hazardDescription.text)&hazard_type=\(h.hazardType)&hazard_impact=\(h.hazardImpact)&company=\(h.company)&department=\(h.department)&location=\(h.location)&type_add=\(h.hazardImpact2)&name=\(hazardName.text)&user_id=\(userId)&image_attachment=\(imageAtt)&username=\(username)&password=\(password)"
         
-
-        
         let request = NSMutableURLRequest(URL:NSURL(string:"https://\(subdomain).ehss.net/mobile/save_hazard")!)
         let session = NSURLSession.sharedSession()
-       
+        
         
         request.HTTPMethod = "POST"
         
@@ -703,100 +551,78 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
             ] as Dictionary<String, String>
         
         
-            for(key, value) in params{
-                print("\(key): \(value)")
-            }
-        
-        print("Params to send ====>")
-        print("date => \(formatter.stringFromDate(formatter.dateFromString(h.date)!))")
-        print("description => \(hazardD)")
-        print("hazard description => \(h.hazardType)")
-        print("hazard impact => \(h.hazardImpact)")
-        print("company => \(h.company)")
-        print("department => \(h.department)")
-        print("location => \(h.location)")
-        print("type add => \(h.hazardImpact2)")
-        print("name => \(hazardN)")
-        print("user id => \(userId)")
-        print("image => \(imageAtt)")
-        print("username => \(username)")
-        print("password => \(password)")
-        print("=====================>end")
-        
+        for(key, value) in params{
+            //print("params value => \(key): \(value)")
+        }
         
         let paramLength = "\(postString.characters.count)"
+        
+        
+        
         
         //let err:NSError?
         
         do{
-       
-        request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(params, options: [])
-        request.addValue(paramLength, forHTTPHeaderField: "Content-Length")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
+            
+            request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(params, options: [])
+            request.addValue(paramLength, forHTTPHeaderField: "Content-Length")
+            request.addValue("application/json", forHTTPHeaderField: "Accept")
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            
         }catch{
-        
+            
         }
-
+        
         
         let task = session.dataTaskWithRequest(request){
             data, response, error -> Void in
             
             do{
-            
-            let strData = NSString(data:data!, encoding:NSUTF8StringEncoding)
-            print("Body\(strData)");
-            
-            if let httpStatus = response as? NSHTTPURLResponse where httpStatus.statusCode != 200 {           // check for http errors
-                print("statusCode should be 200, but is \(httpStatus.statusCode)", terminator: "")
-                print("response = \(response)", terminator: "")
-            }
-            
-       
+                
+                let strData = NSString(data:data!, encoding:NSUTF8StringEncoding)
+                //print("Body\(strData)");
+                
+                if let httpStatus = response as? NSHTTPURLResponse where httpStatus.statusCode != 200 {           // check for http errors
+                    print("statusCode should be 200, but is \(httpStatus.statusCode)", terminator: "")
+                    print("response = \(response)", terminator: "")
+                }
+                
+                
                 //let err: NSError?
                 let json = try NSJSONSerialization.JSONObjectWithData(data!, options: .MutableLeaves) as? NSDictionary
                 
                 
                 /*if err != nil {
-                    print(err!.localizedDescription)
-                    let jsonStr = NSString(data:data!, encoding:NSUTF8StringEncoding)
-                    print("Error could not parse json: \(jsonStr)")
-                }else{ */
-                    if let parseJSON = json{
-                        let success = parseJSON["save"] as? Int
-                        print("Success \(success)")
-                    }else{
-                        let jsonStr = NSString(data: data!, encoding: NSUTF8StringEncoding)
-                        print("Error could not parse JSON: \(jsonStr)")
-                    }
+                 print(err!.localizedDescription)
+                 let jsonStr = NSString(data:data!, encoding:NSUTF8StringEncoding)
+                 print("Error could not parse json: \(jsonStr)")
+                 }else{ */
+                
+                if let parseJSON = json{
+                    let success = parseJSON["save"] as? Int
+                    print("Success \(success)")
+                }else{
+                    let jsonStr = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                    print("Error could not parse JSON: \(jsonStr)")
+                }
+                
                 //}
-            
-            
-            
-          
+                
+                
             }catch{
-            
+                
             }
-  
-            
-           
         }
-        
-        
         
         clearForm()
         
-        task.resume()
-        
-        
-        
+        //task.resume()
         //redirect to list
-      
+        
     }
     
     
-    
+    //MARK: Clear Form after submitted
     func clearForm(){
         
         txtDate.text = ""
@@ -811,8 +637,426 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         txtTime.text = "" //set as current date
         
         //redirect to
-    
+        
     }
+
+}
+
+
+
+// MARK:- Textfield Extension Functions
+
+extension hazardVC{
+    
+    
+    func resign() {
+        
+        txtDate.resignFirstResponder()
+        txtCompany.resignFirstResponder()
+        txtDept.resignFirstResponder()
+        txtLocation.resignFirstResponder()
+        txtHazardType.resignFirstResponder()
+        txtHazardImpact2.resignFirstResponder()
+        txtTime.resignFirstResponder()
+    }
+    
+    func textFieldDidBeginEditing(textField: UITextField!){
+        activeField = textField
+    }
+    
+    func textFieldDidEndEditing(textField: UITextField) {
+        activeField = nil
+    }
+    
+    func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
+        
+        if (textField === txtDate) {
+            resign()
+            let formatter = NSDateFormatter()
+            formatter.dateStyle = .MediumStyle
+            formatter.timeStyle = .NoStyle
+            let initDate : NSDate? = formatter.dateFromString(txtDate.text!)
+            
+            let dataChangedCallback : PopDatePicker.PopDatePickerCallback = { (newDate : NSDate, forTextField : UITextField) -> () in
+                
+                forTextField.text = (newDate.ToDateMediumString() ?? "?") as String
+                
+                self.hazardObject.date = self.txtDate.text! as String
+                print("Hazard object value: \(self.hazardObject.date)", terminator: "")
+            }
+            
+            popDatePicker!.pick(self, initDate: initDate, dataChanged: dataChangedCallback)
+            
+            return false
+            
+            
+        } else if (textField === txtCompany) {
+            resign()
+            let initCompany: NSString? = txtCompany.text
+            
+            let dataChangedCallback : PopCompanyPicker.PopCompanyPickerCallback = {
+                ( newCompany: NSString, newVal : NSInteger,  forTextField: UITextField) -> () in
+                
+                
+                forTextField.text = "\(newCompany)"
+                
+                self.hazardObject.company = self.getCompany(newCompany as String)
+                //print("Company: \(self.hazardObject.company)")
+                self.txtDept.text = ""
+            }
+            
+            popCompanyPicker!.pick(self, initDate:initCompany, dataChanged: dataChangedCallback)
+            
+            return false;
+        }else if (textField === txtDept) {
+            resign()
+            
+            let initDept:NSString? = txtDept.text
+            let dataChangedCallback : PopDeptPicker.PopDeptPickerCallback = {
+                ( newVal: NSString, forTextField: UITextField ) -> () in
+                forTextField.text = "\(newVal)"
+                
+                self.hazardObject.department = self.getDepartment("\(newVal)")
+                
+            }
+            
+            let companyIdVal:Int? = self.getCompany(txtCompany.text! as String)
+            
+            
+            
+            popDeptPicker!.pick(self, initDate: initDept, dataChanged: dataChangedCallback, company:companyIdVal!)
+            
+            return false;
+            
+        }else if (textField === txtLocation){
+            
+            resign()
+            
+            let initLocation:NSString? = txtLocation.text
+            let dataChangedCallback: PopLocationPicker.PopLocationPickerCallback = {
+                (newVal:NSString, forTextField:UITextField) -> () in
+                forTextField.text = "\(newVal)"
+                
+                self.hazardObject.location = self.getLocation("\(newVal)")
+                
+                print("Location \(self.hazardObject.location)", terminator: "");
+                
+            }
+            
+            popLocationPicker!.pick(self, initDate: initLocation, dataChanged: dataChangedCallback)
+            
+            return false
+            
+        }else if(textField === txtHazardType){
+            resign()
+            
+            let initHazardType:NSString? = txtHazardType.text
+            let dataChangedCallback: PopHazardTypePicker.PopHazardTypePickerCallback = {
+                (newVal:NSString, forTextField:UITextField) -> () in
+                forTextField.text = "\(newVal)"
+                
+                self.hazardObject.hazardType = self.getHazardType("\(newVal)")
+            }
+            
+            popHazardTypePicker!.pick(self, initDate: initHazardType, dataChanged: dataChangedCallback, dataHazard:0, dataId:"")
+            return false
+            
+        }else if(textField === txtHazardImpact){
+            
+            let initHazardTypeImpact:NSString? = txtHazardImpact.text
+            let dataChangedCallback: PopHazardTypePicker.PopHazardTypePickerCallback = {
+                (newVal:NSString, forTextField:UITextField) -> () in
+                forTextField.text = "\(newVal)"
+                
+                self.hazardObject.hazardImpact = self.getHazardImpact("\(newVal)")
+            }
+            
+            popHazardImpactPicker!.pick(self, initDate: initHazardTypeImpact, dataChanged: dataChangedCallback, dataHazard:1, dataId:"")
+            return false;
+            
+            
+        }else if(textField === txtHazardImpact2){
+            
+            let initHazardTypeImpact2: NSString? = txtHazardImpact2.text
+            let dataChangedCallback:PopHazardTypePicker.PopHazardTypePickerCallback = {
+                (newVal:NSString, forTextField:UITextField) -> () in
+                forTextField.text = "\(newVal)"
+                
+                self.hazardObject.hazardImpact2 = self.getHazardImpact("\(newVal)")
+            }
+            
+            let dataString = txtHazardImpact.text! as String
+            
+            //print("data string value: \(dataString)")
+            
+            popHazardImpactPicker2!.pick(self, initDate: initHazardTypeImpact2, dataChanged: dataChangedCallback, dataHazard: 2, dataId:dataString)
+            
+            return false;
+        }else {
+            return true
+        }
+    }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        
+        hazardDescription.resignFirstResponder()
+        hazardNameText.resignFirstResponder()
+        return true;
+    }
+
+
+}
+
+// MARK:- Navigation Code extention
+extension hazardVC{
+    // MARK: Navigation Reveal Toggle
+    
+    @IBAction func revealCall(sender: AnyObject) {
+        if self.revealViewController() != nil {
+            btnListAll.target = self.revealViewController()
+            btnListAll.action = "revealToggle:"
+            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
+        }else{
+            print("reveal view controller doesnt exist!")
+            
+            //self.performSegueWithIdentifier("toDashboard2", sender: self)
+        }
+        print("reveal is call")
+    }
+
+}
+
+
+
+
+// MARK:- hazard Update extenstions
+
+extension hazardVC{
+    
+    
+    // MARK:- Retrive Hazard
+    func getHazard(let id:Int) -> Hazard{
+        
+        
+        var hazard:Hazard = Hazard(time: "", date: "", company: 0, department: 0, location: 0, hazardType: 0, hazardImpact: 0, hazardImpact2: 0, hazardName: "", hazardDescription: "")
+        
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Hazard")
+        request.returnsObjectsAsFaults = false
+        request.predicate = NSPredicate(format: "id = %@", "\(id)")
+        
+        do{
+            let result:NSArray = try context.executeFetchRequest(request)
+            
+            if result.count > 0 {
+                
+                let description = result[0].valueForKey("desc") as! String
+                
+                hazard.hazardDescription = description
+                
+            }
+            
+            
+        }catch {
+            
+        }
+        
+        
+        return hazard
+        
+    }
+
+}
+
+
+
+
+// MARK:- Network Process Extenstions
+
+extension hazardVC{
+    
+    // MARK:- Generate Body Files to send to server
+    func createBodyWithParameters(parameters:[String:String]?, filePathKey:String?, imageDataKey:NSData , boundary:String)->NSData{
+        
+        let body = NSMutableData()
+        let filename = "sentimage.jpg"
+        let mimetype = "image/jpg"
+        
+        body.appendString("--\(boundary)\r\n")
+        body.appendString("Copy-Disposition:form-data; name=\"\(filePathKey)\"; filename=\"\(filename)\"\r\n")
+        body.appendString("Content-Type:\(mimetype)\r\n\r\n")
+        body.appendData(imageDataKey)
+        body.appendString("\r\n")
+        
+        
+        print("--\(boundary)\r\n")
+        print("Copy-Disposition:form-data; name=\"\(filePathKey)\"; filename=\"\(filename)\"\r\n")
+        print("Content-Type:\(mimetype)\r\n\r\n")
+        print(imageDataKey)
+        print("\r\n")
+        
+        
+        if parameters != nil {
+            for(key, value) in parameters!{
+                
+                body.appendString("--\(boundary)\r\n")
+                body.appendString("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
+                body.appendString("\(value)\r\n")
+                
+                print("--\(boundary)\r\n")
+                print("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
+                print("\(value)\r\n")
+                
+            }
+        }
+        
+        body.appendString("--\(boundary)\r\n")
+        print("--\(boundary)\r\n")
+        
+        return body
+    }
+    
+    // MARK: Generate the Request to  Server
+    func multipartFormRequest(hazard: Hazard){
+        
+        let cutil:CommonUtils = CommonUtils.sharedInstance
+        
+        let myURL = NSURL(string: "https://\(cutil.getDomain()).ehss.net/mobile/save_hazard2")
+        let request = NSMutableURLRequest(URL: myURL!)
+        request.HTTPMethod = "POST"
+        
+        
+        /*
+         $date = Helper::formatDisplayDate($input->date);
+         $description = $input->description;
+         $type = $input->hazard_type;
+         $impact = $input->hazard_impact;
+         $company = $input->company;
+         $department = $input->department;
+         $location = $input->location;
+         $type_add = $input->type_add;
+         $hazard_name = $input->name;
+         $hazard_code = uniqid();
+         $username = $input->username;
+         $password = $input->password;
+         */
+        
+        /*
+         
+         let params = [
+         "date":"\(formatter.stringFromDate(formatter.dateFromString(h.date)!))",
+         "description":"\(hazardD)",
+         "hazard_type":"\(h.hazardType)",
+         "hazard_impact":"\(h.hazardImpact)",
+         "company":"\(h.company)",
+         "department":"\(h.department)",
+         "location":"\(h.location)",
+         "type_add":"\(h.hazardImpact2)",
+         "name":"\(hazardN)",
+         "user_id":"\(userId)",
+         "image_attachment":"\(imageAtt)",
+         "username":"\(username)",
+         "password":"\(password)"
+         ] as Dictionary<String, String>
+         
+         
+         for(key, value) in params{
+         print("params value => \(key): \(value)")
+         }
+         */
+        
+        
+        
+        
+        let param = [
+            "date":"\(hazard.date)",
+            "description":"\(hazard.hazardDescription)",
+            "hazard_type":"\(hazard.hazardImpact)",
+            "hazard_impact":"\(hazard.company)",
+            "company":"\(hazard.department)",
+            "department":"\(hazard.department)",
+            "location":"\(hazard.location)",
+            "type_add":"\(hazard.hazardImpact2)",
+            "name":"\(hazard.hazardName)",
+            "username":"\(cutil.emailAddress())",
+            "password":"\(cutil.currentPassword())"
+        ]
+        
+        print("==========start parsing==============")
+        print("\(myURL)")
+        for(key, value ) in param{
+            print("\(key):\(value)")
+        }
+        print("=========end of data parsing============")
+        
+        
+        let boundary = generateBoundaryString()
+        let img:UIImage = imgAttachment.image!
+        
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        let imageData = UIImageJPEGRepresentation(img, 0.5)
+        if imageData == nil {return;}
+        
+        request.HTTPBody = createBodyWithParameters(param, filePathKey: "file", imageDataKey: imageData!, boundary: boundary)
+        
+        let task = NSURLSession.sharedSession().dataTaskWithRequest(request)
+        {
+            data, response, error in
+            
+            if error != nil {
+                print("error = \(error)")
+                return
+            }
+            
+            let responseString = NSString(data: data!, encoding: NSUTF8StringEncoding)
+            
+            print("Response=> \(responseString)")
+        }
+        
+        task.resume()
+        
+        
+    }
+    
+    // MARK: Generate Boundary String
+    func generateBoundaryString()->String{
+        return "Boundary-\(NSUUID().UUIDString)"
+    }
+
+}
+
+
+// MARK:- Utility Functions Extentions
+
+extension hazardVC{
+    
+    // MARK: Retrieve Company ID
+    
+    func getCompany(let val:String) -> Int{
+        var id:Int = 0
+        
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context:NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Milestone")
+        
+        request.returnsObjectsAsFaults = false
+        request.predicate = NSPredicate(format: "company = %@",val)
+        
+        let results:NSArray = try! context.executeFetchRequest(request)
+        
+        if results.count > 0 {
+            let res = results[0] as! NSManagedObject
+            id = res.valueForKey("id") as! Int
+        }else{
+            print("Error find company", terminator: "")
+        }
+        return id
+        
+    }
+    
+    // MARK: Retrieve User ID
     
     func getUserId(let val:String) ->Int{
         var id:Int = 0;
@@ -835,6 +1079,8 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         return 2
     }
     
+    // MARK: Retrieve Location ID
+    
     func getLocation(let val:String) ->Int {
         
         
@@ -843,7 +1089,7 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
         let context:NSManagedObjectContext = AppDel.managedObjectContext!
         let request = NSFetchRequest(entityName: "Location")
-
+        
         request.returnsObjectsAsFaults = false
         request.predicate = NSPredicate(format: "name = %@",val)
         
@@ -859,27 +1105,7 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         return id
     }
     
-    func getCompany(let val:String) -> Int{
-        var id:Int = 0
-        
-        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-        let context:NSManagedObjectContext = AppDel.managedObjectContext!
-        let request = NSFetchRequest(entityName: "Milestone")
-        
-        request.returnsObjectsAsFaults = false
-        request.predicate = NSPredicate(format: "company = %@",val)
-        
-        let results:NSArray = try! context.executeFetchRequest(request)
-        
-        if results.count > 0 {
-            let res = results[0] as! NSManagedObject
-            id = res.valueForKey("id") as! Int
-        }else{
-            print("Error find company", terminator: "")
-        }
-        return id
-    
-    }
+    // MARK: Retrieve Department ID
     
     func getDepartment(let val:String) -> Int{
         var id:Int = 0
@@ -901,8 +1127,10 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         }
         
         return id
-    
+        
     }
+    
+    // MARK: Retrieve Hazard Type
     
     func getHazardType(let val:String) -> Int{
         var id:Int = 0
@@ -926,6 +1154,7 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         
     }
     
+    // MARK: Retrieve Hazard Impact
     
     func getHazardImpact(let val:String)->Int{
         var id:Int = 0
@@ -944,12 +1173,47 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         }else{
             print("error finding hazard impact!", terminator: "")
         }
-        
-        
         return id
+        
+    }
     
+    // MARK: Function Utility get current date
+    
+    func currentDate()->String{
+        let date = NSDate()
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateStyle = NSDateFormatterStyle.LongStyle
+        
+        return "\(dateFormatter.stringFromDate(date))"
+    }
+    
+    // MARK: Function get current time
+    
+    func currentTime() -> String {
+        let date = NSDate()
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateStyle = .NoStyle
+        dateFormatter.timeStyle = .MediumStyle
+        
+        return "\(dateFormatter.stringFromDate(date))"
     }
 
 }
+
+
+// MARK:- Mutable Data Extension
+
+extension NSMutableData{
+    func appendString(string: String){
+        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
+        appendData(data!)
+    }
+
+}
+
+
+
+
+
 
 

@@ -40,18 +40,20 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
         let getNatureVar = getNatureIds(selectedNature)
         if(incident != nil){
             
-            newIncident.setValue(incident?.departmentId, forKey: "department")
-            newIncident.setValue(incident?.description, forKey: "desc")
+            //generate id
+            newIncident.setValue(CoreDataUtility.getIncrementedId("Noi"), forKey: "id")
+            newIncident.setValue(incident!.departmentId!, forKey: "department")
+            newIncident.setValue(incident!.description!, forKey: "desc")
             newIncident.setValue(getNatureVar.0, forKey:"nature")
             newIncident.setValue(getNatureVar.1, forKey: "nature_category")
-            newIncident.setValue(incident?.time, forKey: "time")
-            newIncident.setValue(incident?.date, forKey: "date")
-            newIncident.setValue(incident?.location, forKey: "location") // load camera image
-            newIncident.setValue(incident?.description, forKey: "desc")
-            newIncident.setValue(incident?.activity, forKey: "activity")
+            newIncident.setValue(incident!.time!, forKey: "time")
+            newIncident.setValue(incident!.date!, forKey: "date")
+            newIncident.setValue(incident!.location!, forKey: "location") // load camera image
+            newIncident.setValue(incident!.description!, forKey: "desc")
+            newIncident.setValue(incident!.activity!, forKey: "activity")
             newIncident.setValue(CoreDataUtility.getUserId(username), forKey: "user_id")
-            newIncident.setValue(incident?.companyId, forKey: "company_id")
-            newIncident.setValue(incident?.image, forKey: "image")
+            newIncident.setValue(incident!.companyId!, forKey: "company_id")
+           // newIncident.setValue(incident!.image!, forKey: "image")
             
             
             do{
@@ -61,17 +63,31 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
             }
         }
         
-        print("department: \(incident!.departmentId)")
-        print("date\(incident!.description)")
-        print("time \(incident!.time)")
-        print("location\(incident!.location)")
+        let commonUtil:CommonUtils = CommonUtils.sharedInstance
+        
+        print("<===============Parameter to send===========>")
+        
+        print("department: \(incident!.departmentId!)")
+        print("date\(incident!.description!)")
+        print("time \(incident!.time!)")
+        print("location\(incident!.location!)")
         print("nature\(getNatureVar.0)")
         print("nature_category\(getNatureVar.1)")
-        print("desc\(incident!.description)")
-        print("activity\(incident!.activity)")
-        print("company_id: \(incident!.companyId)")
+        print("desc\(incident!.description!)")
+        print("activity\(incident!.activity!)")
+        print("company_id: \(incident!.companyId!)")
+        print("user_id: \(CoreDataUtility.getUserId(username))")
+        print("username: \(username)")
+        print("password: \(commonUtil.currentPassword())")
         
-       // saveOnline(incident!)
+        print("<=======>")
+        
+        
+        let inc:Incident = Incident(userId: CoreDataUtility.getUserId(username), date: incident!.date!, time: incident!.time!, companyId: incident!.companyId!, departmentId: incident!.departmentId!, activity: incident!.activity!, description: incident!.description!, natureId: getNatureVar.0, location: incident!.location!, natureCat: getNatureVar.1, image: "")
+        
+        
+        
+       saveOnline(inc)
         
     }
     
@@ -82,6 +98,8 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
         request.HTTPMethod = "POST"
         
         let params = [
+            
+        
             "department":"\(incident.departmentId)",
             "description":"\(incident.description)",
             "nature":"\(incident.natureId)",
@@ -90,13 +108,20 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
             "date":"\(incident.date)",
             "location":"\(incident.location)",
             "activity":"\(incident.activity)",
-            "user_id":String(incident.userId),
+            "user_id":"\(incident.userId)",
             "company_id":"\(incident.companyId)",
             "image":"\(incident.image)",
             "username":"\(username)",
             "password":"\(password)"
+ 
+ 
             
             ] as Dictionary<String, String>
+        
+        
+        for (key,value) in params{
+            print("params=> \(key): \(value)")
+        }
         
         do{
             request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(params, options: [])
@@ -123,30 +148,20 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
                 
                 }else {
                     print("Error saving : \(response)")
-                
                 }
-                
-   
-
-                
-                
             }
         
-            task.resume()
+            //task.resume()
         
         }catch{
             request.HTTPBody = nil
         }
-        
-        
         
     }
     
     //Mark: Delegate
     
     func incidentCarrier(incident: Incident) {
-        //
-        
         
         print("Incident : \(incident.activity)")
     }
@@ -183,6 +198,20 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
     var lastCellExpanded : (Int, Int)!
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        if (incident != nil){
+            
+            /*
+            print("Activity : \(incident!.activity!)")
+            print("Date : \(incident!.date!)")
+            print("Time : \(incident!.time!)")
+            print("Department: \(incident!.departmentId!)")
+            print("Location: \(incident!.location!)")
+            print("description : \(incident!.description!)")*/
+            
+            
+        }
         
         
         generateNatureList(parentMenu[0])

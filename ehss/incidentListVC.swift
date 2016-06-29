@@ -19,6 +19,7 @@ class incidentListVC: UITableViewController {
     struct incident{
         var location: Int
         var name: String
+        var id:Int
     }
     
     override func viewDidLoad() {
@@ -38,7 +39,6 @@ class incidentListVC: UITableViewController {
             
             revealViewController().rightViewRevealWidth = 150
             
-            
             view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
         }
 
@@ -46,6 +46,7 @@ class incidentListVC: UITableViewController {
         let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
         let context: NSManagedObjectContext = AppDel.managedObjectContext!
         let request = NSFetchRequest(entityName: "Noi")
+        
         request.returnsObjectsAsFaults = false
 
         let results:NSArray = try! context.executeFetchRequest(request)
@@ -53,7 +54,7 @@ class incidentListVC: UITableViewController {
         if results.count > 0 {
             
             for res in results {
-                let h:incident? = incident(location: (res.valueForKey("location") as? Int)!, name: (res.valueForKey("desc") as? String)!)
+                let h:incident? = incident(location: (res.valueForKey("location") as? Int)!, name: (res.valueForKey("desc") as? String)!,id:(res.valueForKey("id") as? Int)!)
                 
                 incidentList.append(h!)
                 
@@ -92,9 +93,21 @@ class incidentListVC: UITableViewController {
         
         cell.lblLocation.text = getLocationName(h.location) as String
         cell.lblName.text = h.name
-        
+        cell.lblID.text = "\(h.id)"
         
         return cell
+    }
+    
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        let story: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let editVC: IncidentVC2 = story.instantiateViewControllerWithIdentifier("IncidentVC") as! IncidentVC2
+        
+            editVC.incidentId = incidentList[indexPath.row].id
+        
+            let navigationController = UINavigationController(rootViewController: editVC)
+            self.presentViewController(navigationController, animated: true, completion: nil)
+        
     }
     
     func getLocationName(let val:Int) ->String {
@@ -120,60 +133,5 @@ class incidentListVC: UITableViewController {
         
         return id
     }
-
-    /*
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath) as! UITableViewCell
-
-        // Configure the cell...
-
-        return cell
-    }
-    */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

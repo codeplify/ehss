@@ -96,6 +96,7 @@
         <attribute name="date" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="department" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="desc" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="id" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="image" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="location" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="nature" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
@@ -175,7 +176,7 @@
         <element name="Location" positionX="-54" positionY="117" width="128" height="165"/>
         <element name="Milestone" positionX="-63" positionY="63" width="128" height="120"/>
         <element name="Nature" positionX="-54" positionY="135" width="128" height="135"/>
-        <element name="Noi" positionX="-54" positionY="135" width="128" height="225"/>
+        <element name="Noi" positionX="-54" positionY="135" width="128" height="240"/>
         <element name="Preferences" positionX="-54" positionY="126" width="128" height="105"/>
         <element name="RiskMatrixAxis" positionX="-45" positionY="135" width="128" height="105"/>
         <element name="RiskMatrixLegend" positionX="-18" positionY="162" width="128" height="105"/>

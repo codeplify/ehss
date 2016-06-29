@@ -14,8 +14,13 @@ protocol HazardListDelegate{
 }
 
 class hazardListVC: UITableViewController {
-     var hazardArray:[hazardShort] = [hazardShort]()
     
+    
+    // MARK:- Hazard Variable declaration
+    
+    var hazardArray:[hazardShort] = [hazardShort]()
+    
+    // MARK:- Hazard Structure
     struct hazardShort{
         var location: Int
         var name: String
@@ -25,10 +30,11 @@ class hazardListVC: UITableViewController {
     
     var delegate:HazardListDelegate! = nil
     
-    
+    // MARK:- View Did Load
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // MARK: Navigation Reveal View Controller
         if self.revealViewController() != nil {
             btnMenuList.target = self.revealViewController()
             btnMenuList.action = "revealToggle:"
@@ -40,7 +46,6 @@ class hazardListVC: UITableViewController {
         let request = NSFetchRequest(entityName: "Hazard")
         
         request.returnsObjectsAsFaults = false
-    
         
         let results:NSArray = try! context.executeFetchRequest(request)
         
@@ -48,24 +53,14 @@ class hazardListVC: UITableViewController {
             
             for res in results {
                 
-                //managedObjectIDForURIRepresentation
-                //let i = res.identifier! as String
-                
-               // let i:String = (res.identifier)!
-                
-                
                 let h:hazardShort? = hazardShort(location: (res.valueForKey("location") as? Int)!, name: (res.valueForKey("name") as? String)!, id:(res.valueForKey("id") as? Int)!)
-                //print("res identifier : \(i)")
+                
                 hazardArray.append(h!)
             }
         }
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
+  
     // MARK: - Table view data source
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -96,44 +91,12 @@ class hazardListVC: UITableViewController {
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
        
-        /*
-         let storyboard : UIStoryboard = UIStoryboard(name: "AccountStoryboard", bundle: nil)
-         let vc : WelcomeViewController = storyboard.instantiateViewControllerWithIdentifier("WelcomeID") as WelcomeViewController
-         vc.teststring = "hello"
-         
-         let navigationController = UINavigationController(rootViewController: vc)
-         
-         self.presentViewController(navigationController, animated: true, completion: nil)
-         */
-        //if (delegate != nil){
-                      
             let story: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-            
             let editVC: hazardVC = story.instantiateViewControllerWithIdentifier("HazardVC") as! hazardVC
-            
-            editVC.hazardId = hazardArray[indexPath.row].id
-        
+                editVC.hazardId = hazardArray[indexPath.row].id
             let navigationController = UINavigationController(rootViewController: editVC)
             self.presentViewController(navigationController, animated: true, completion: nil)
         
-        
-        //}
-        
-        //let storyboard: UIStoryboard = self.storyboard!
-        
-        
-        
-        
-        /*
-         
-        let hazardSelected = hazardArray[indexPath.row]
-        
-        let editVC:hazardVC = self.storyboard?.instantiateViewControllerWithIdentifier("HazardVC") as! hazardVC
-        
-        self.presentViewController(editVC, animated: true, completion: nil)
-         
-         */
-        //Alert.show("Hazard", message: "Id: \(hazardSelected.id) , Name: \(hazardSelected.name)", vc: self)
     }
     
     func getLocationName(let val : Int) ->String {
@@ -158,52 +121,5 @@ class hazardListVC: UITableViewController {
         
         return id
     }
-    
-    
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

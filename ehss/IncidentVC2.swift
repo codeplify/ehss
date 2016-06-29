@@ -15,8 +15,15 @@ protocol IncidentDelegate {
 
 class IncidentVC2: UIViewController,UITextFieldDelegate {
 
+    
+    var incidentId = 0
     let commonUtils = CommonUtils.sharedInstance
     
+    @IBAction func btnCameraTapped(sender: UIButton) {
+        
+        
+    }
+    @IBOutlet weak var btnCamera: UIButton!
     
     var popDatePicker:PopDatePicker?
     var popLocationPicker:PopLocationPicker?
@@ -42,6 +49,18 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        if incidentId > 0 {
+            Alert.show("ID", message: "Id \(self.incidentId)", vc: self)
+            
+            let inc:Incident = CoreDataUtility.getIncident(self.incidentId)
+            txtDescription.text = inc.description
+            txtActivity.text = inc.activity
+            txtCompany.text = CoreDataUtility.getCompany(self.incidentId)
+            txtDepartment.text = CoreDataUtility.getDepartment(self.incidentId)
+            
+        }
         
         
         txtDate.text = commonUtils.currentDate()
@@ -187,8 +206,8 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
         let incident:Incident = Incident(userId: 2, date: date, time: time, companyId: companyId, departmentId: departmentId, activity: activity, description: description, natureId: 0, location: location, natureCat: 0,image:"")
         
         
-        secondTab.transferValue = "loey agdan"
-        secondTab.incident = incident
+            secondTab.transferValue = "loey agdan"
+            secondTab.incident = incident
         
         
         self.tabBarController?.selectedIndex = 1

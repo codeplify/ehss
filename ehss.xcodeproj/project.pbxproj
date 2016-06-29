@@ -35,6 +35,7 @@
 		0C3EB0CE1CF6D19100C374FB /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 0C3EB0C91CF6D19100C374FB /* index.html */; };
 		0C3EB0D01CF6EF2100C374FB /* RiskMatrixVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3EB0CF1CF6EF2100C374FB /* RiskMatrixVC.swift */; };
 		0C407FE61CBF7EEE00A4F50A /* Hazard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C407FE51CBF7EEE00A4F50A /* Hazard.swift */; };
+		0C465A231D2264200027077C /* ApiUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C465A221D2264200027077C /* ApiUtility.swift */; };
 		0C4753321D190D8400D8AC20 /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4753311D190D8400D8AC20 /* Alert.swift */; };
 		0C4753341D191B8600D8AC20 /* CoreDataUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4753331D191B8600D8AC20 /* CoreDataUtility.swift */; };
 		0C4AEE9D1CBE36450050A79B /* PopLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4AEE9B1CBE36450050A79B /* PopLocationViewController.swift */; };
@@ -221,6 +222,7 @@
 		0C3EB0C91CF6D19100C374FB /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		0C3EB0CF1CF6EF2100C374FB /* RiskMatrixVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RiskMatrixVC.swift; path = ../RiskMatrixVC.swift; sourceTree = "<group>"; };
 		0C407FE51CBF7EEE00A4F50A /* Hazard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hazard.swift; sourceTree = "<group>"; };
+		0C465A221D2264200027077C /* ApiUtility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApiUtility.swift; sourceTree = "<group>"; };
 		0C4753311D190D8400D8AC20 /* Alert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		0C4753331D191B8600D8AC20 /* CoreDataUtility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataUtility.swift; sourceTree = "<group>"; };
 		0C4AEE9B1CBE36450050A79B /* PopLocationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopLocationViewController.swift; sourceTree = "<group>"; };
@@ -425,6 +427,7 @@
 				0C4753311D190D8400D8AC20 /* Alert.swift */,
 				0C4753331D191B8600D8AC20 /* CoreDataUtility.swift */,
 				0C09637D1D1A774E00A7D42A /* CommonUtils.swift */,
+				0C465A221D2264200027077C /* ApiUtility.swift */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -930,6 +933,7 @@
 				0C0031341D179C0900380BE7 /* PopAllUsersViewController.swift in Sources */,
 				0C407FE61CBF7EEE00A4F50A /* Hazard.swift in Sources */,
 				0CE3D8B91CE714AD0095C790 /* auditInspectionListVC.swift in Sources */,
+				0C465A231D2264200027077C /* ApiUtility.swift in Sources */,
 				0C09637E1D1A774E00A7D42A /* CommonUtils.swift in Sources */,
 				0C4AEE9D1CBE36450050A79B /* PopLocationViewController.swift in Sources */,
 			);

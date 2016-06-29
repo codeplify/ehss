@@ -47,13 +47,48 @@ class CoreDataUtility: NSObject {
             
             }
         
-        
         }catch {
-        
+            
         }
         
         return hazard!
     
+    }
+    
+    static func getIncident(let id: Int)->Incident{
+        var incident:Incident? = nil
+        
+        let context = instantiateContext()
+        let request = NSFetchRequest(entityName: "Noi")
+        
+        request.returnsObjectsAsFaults = false
+        request.predicate = NSPredicate(format: "id = %@", "\(id)")
+        
+        do{
+            let result:NSArray = try context.executeFetchRequest(request)
+            if result.count > 0 {
+                
+                let id = result[0].valueForKey("id") as! Int
+                let date = result[0].valueForKey("date") as! String
+                let time = result[0].valueForKey("time") as! String
+                let companyId = result[0].valueForKey("company_id") as! Int
+                let department = result[0].valueForKey("department") as! Int
+                let activity = result[0].valueForKey("activity") as! String
+                let description = result[0].valueForKey("desc") as! String
+                let natureId = result[0].valueForKey("nature") as! Int
+                let location = result[0].valueForKey("location") as! Int
+                let natureCat = result[0].valueForKey("nature_category") as! Int
+                
+                
+                let inc = Incident(userId: id, date: date, time: time, companyId: companyId, departmentId: department, activity: activity, description: description, natureId: natureId, location: location, natureCat: natureCat, image: "")
+                
+                incident = inc
+            }
+        }catch{
+            
+        }
+        
+        return incident!
     }
     
     static func getUserId(let username:String)-> Int{
@@ -254,13 +289,13 @@ class CoreDataUtility: NSObject {
     
 
 
-    static func getIncrementedId() -> Int{
+    static func getIncrementedId(let table:String) -> Int{
         
         let ret: Int  = 0
         
         let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
         let context: NSManagedObjectContext = AppDel.managedObjectContext!
-        let request = NSFetchRequest(entityName: "Hazard")
+        let request = NSFetchRequest(entityName: table)
         
         
         request.returnsObjectsAsFaults = false

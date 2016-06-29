@@ -31,36 +31,29 @@ class CommonUtils:NSObject {
         return "\(dateFormatter.stringFromDate(date))"
     }
     
-    /*
-     
-     let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
-     let context: NSManagedObjectContext = AppDel.managedObjectContext!
-     let request = NSFetchRequest(entityName: "AllUser")
-     request.returnsObjectsAsFaults = false
-     
-     request.predicate = NSPredicate(format: "email = %@", userPref.valueForKey("ehss_username") as! String)
-     
-     
-     
-     do{
-     
-     let result:NSArray = try context.executeFetchRequest(request)
-     
-     //print("username count : \(result.count)")
-     
-     if result.count > 0 {
-     let r = result[0] as! NSManagedObject
-     
-     lblUserFull.text = r.valueForKey("name") as? String
-     
-     //print("username \(lblUserFull.text)")
-     }
-     
-     }catch{
-     
-     }
 
-     */
+    func getDomain()->String{
+        
+        var subdomain = ""
+        
+        let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
+        let context: NSManagedObjectContext = AppDel.managedObjectContext!
+        let request = NSFetchRequest(entityName: "Usercontroller")
+        
+        request.returnsObjectsAsFaults = false
+        
+        do{
+            let result:NSArray = try context.executeFetchRequest(request)
+            if result.count > 0 {
+                let res = result[0] as! NSManagedObject
+                subdomain = res.valueForKey("subdomain") as! String
+            }
+        }catch{
+            subdomain = ""
+        }
+        
+        return subdomain
+    }
     
     let userDefaults = NSUserDefaults.standardUserDefaults()
     func currentUser()-> String{
@@ -100,6 +93,30 @@ class CommonUtils:NSObject {
         
         return ret
     }
+    
+    func currentPassword()->String{
+        var ret = ""
+        
+        if(userDefaults.objectForKey("ehss_username") != nil){
+            let password = userDefaults.valueForKey("ehss_password")
+            
+            ret = password as! String
+        }
+        
+        return ret
+    }
+    
+    func emailAddress()->String{
+        if(userDefaults.objectForKey("ehss_username") != nil){
+            let email = userDefaults.valueForKey("ehss_username")
+            return email as! String
+            
+        }else{
+            return ""
+        }
+    
+    }
+    
     
     
     
