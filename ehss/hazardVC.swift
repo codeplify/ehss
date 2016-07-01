@@ -467,15 +467,6 @@ extension hazardVC{
         newHazard.setValue(userId, forKey: "user_id")
         newHazard.setValue(1, forKey: "is_sync")
         
-       
-        
-        
-        
-        
-        
-        
-        
-        
         //get value from shared preference
         
         //get sign in of user login
@@ -878,23 +869,23 @@ extension hazardVC{
 extension hazardVC{
     
     // MARK:- Generate Body Files to send to server
-    func createBodyWithParameters(parameters:[String:String]?, filePathKey:String?, imageDataKey:NSData , boundary:String)->NSData{
+    func createBodyWithParameters(parameters:[String:String]?, filePathKey:String!, imageDataKey:NSData , boundary:String)->NSData{
         
         let body = NSMutableData()
         let filename = "sentimage.jpg"
         let mimetype = "image/jpg"
         
         body.appendString("--\(boundary)\r\n")
-        body.appendString("Copy-Disposition:form-data; name=\"\(filePathKey)\"; filename=\"\(filename)\"\r\n")
+        body.appendString("Content-Disposition:form-data; name=\"\(filePathKey!)\"; filename=\"\(filename)\"\r\n")
         body.appendString("Content-Type:\(mimetype)\r\n\r\n")
         body.appendData(imageDataKey)
         body.appendString("\r\n")
         
         
         print("--\(boundary)\r\n")
-        print("Copy-Disposition:form-data; name=\"\(filePathKey)\"; filename=\"\(filename)\"\r\n")
+        print("Content-Disposition:form-data; name=\"\(filePathKey)\"; filename=\"\(filename)\"\r\n")
         print("Content-Type:\(mimetype)\r\n\r\n")
-        print(imageDataKey)
+        //print(imageDataKey)
         print("\r\n")
         
         
@@ -923,52 +914,9 @@ extension hazardVC{
         
         let cutil:CommonUtils = CommonUtils.sharedInstance
         
-        let myURL = NSURL(string: "https://\(cutil.getDomain()).ehss.net/mobile/save_hazard2")
+        let myURL = NSURL(string: "https://\(cutil.getDomain()).ehss.net/mobile/ios/save_hazard")
         let request = NSMutableURLRequest(URL: myURL!)
         request.HTTPMethod = "POST"
-        
-        
-        /*
-         $date = Helper::formatDisplayDate($input->date);
-         $description = $input->description;
-         $type = $input->hazard_type;
-         $impact = $input->hazard_impact;
-         $company = $input->company;
-         $department = $input->department;
-         $location = $input->location;
-         $type_add = $input->type_add;
-         $hazard_name = $input->name;
-         $hazard_code = uniqid();
-         $username = $input->username;
-         $password = $input->password;
-         */
-        
-        /*
-         
-         let params = [
-         "date":"\(formatter.stringFromDate(formatter.dateFromString(h.date)!))",
-         "description":"\(hazardD)",
-         "hazard_type":"\(h.hazardType)",
-         "hazard_impact":"\(h.hazardImpact)",
-         "company":"\(h.company)",
-         "department":"\(h.department)",
-         "location":"\(h.location)",
-         "type_add":"\(h.hazardImpact2)",
-         "name":"\(hazardN)",
-         "user_id":"\(userId)",
-         "image_attachment":"\(imageAtt)",
-         "username":"\(username)",
-         "password":"\(password)"
-         ] as Dictionary<String, String>
-         
-         
-         for(key, value) in params{
-         print("params value => \(key): \(value)")
-         }
-         */
-        
-        
-        
         
         let param = [
             "date":"\(hazard.date)",
@@ -993,10 +941,10 @@ extension hazardVC{
         
         
         let boundary = generateBoundaryString()
-        let img:UIImage = imgAttachment.image!
+        //let img:UIImage = imgAttachment.image!
         
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        let imageData = UIImageJPEGRepresentation(img, 0.5)
+        let imageData = UIImageJPEGRepresentation(imgAttachment.image!, 0.5)
         if imageData == nil {return;}
         
         request.HTTPBody = createBodyWithParameters(param, filePathKey: "file", imageDataKey: imageData!, boundary: boundary)

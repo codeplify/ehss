@@ -16,16 +16,20 @@ var subdomain = ""
 
 class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,UITableViewDelegate,IncidentDelegate{
     
+    
+    // MARK:- Incident Variables
+    
     var incident : Incident? = nil
     var selectedNature = ""
+    var parentMenu:[String] = ["Safety","Environment","Health","Security"]
 
     @IBOutlet weak var tableView: UITableView!
-    var parentMenu:[String] = ["Safety","Environment","Health","Security"]
     
+    
+    // MARK:- Save to SQLiteDB
     @IBAction func btnSubmitAction(sender: UIButton) {
         
         //save first
-        
         if userPref.valueForKey("ehss_username") != nil && userPref.valueForKey("ehss_password") != nil && userPref.valueForKey("subdomain") != nil {
         
             username = userPref.valueForKey("ehss_username") as! String
@@ -87,10 +91,12 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
         
         
         
-       saveOnline(inc)
+       //saveOnline(inc)
         
     }
     
+    
+    //MARK:- Save to online json string
     func saveOnline(let incident: Incident){
         
         let request = NSMutableURLRequest(URL:NSURL(string:"https://\(subdomain).ehss.net/mobile/save_noi")!)
@@ -160,15 +166,16 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
     }
     
     //Mark: Delegate
-    
     func incidentCarrier(incident: Incident) {
         
         print("Incident : \(incident.activity)")
     }
     
     
-    var transferValue:String = ""
     
+    //MARK: Collapsable table view in ios swift
+    
+    var transferValue:String = ""
     var childList1:[String] = [String]()
     var childList2: [String] = [String]()
     var childList3:[String] = [String]()
@@ -273,6 +280,9 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
     }
     */
     
+    
+    // MARK:- Generate LIST of NATURE
+    
     private func generateNatureList(let natureMain:String){
         
         var queryValue = ""
@@ -339,6 +349,8 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
         
     }
     
+    
+    //MARK:- parts of collapsible table view 1
     private func setInitialDataSource(numberOfRowParents parents: Int, numberOfRowChildPerParent childs: Int) {
         
         // Set the total of cells initially.
@@ -624,7 +636,117 @@ extension AccordionMenuTableViewController {
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return !self.findParent(indexPath.row).isParentCell ? 44.0 : 64.0
     }
+}
 
+extension AccordionMenuTableViewController{
+    
+    func requestMulipartForm(let incident:Incident){
+        let cutil:CommonUtils = CommonUtils.sharedInstance
+        let myURL = NSURL(string: "https://\(cutil.getDomain()).ehss.net/mobile/ios/save_incident")
+        let request = NSMutableURLRequest(URL: myURL!)
+        request.HTTPMethod = "POST"
+        
+        
+        /*
+         
+         "department":"\(incident.departmentId)",
+         "description":"\(incident.description)",
+         "nature":"\(incident.natureId)",
+         "nature_category":"\(incident.natureCategory)",
+         "time":"\(incident.time)",
+         "date":"\(incident.date)",
+         "location":"\(incident.location)",
+         "activity":"\(incident.activity)",
+         "user_id":"\(incident.userId)",
+         "company_id":"\(incident.companyId)",
+         "image":"\(incident.image)",
+         "username":"\(username)",
+         "password":"\(password)"
+       */
+        
+        
+        let username:String = cutil.emailAddress()
+        let password:String = cutil.currentPassword()
+        
+        let param = [
+            "department":"\(incident.departmentId!)",
+            "description":"\(incident.description!)",
+            "nature":"\(incident.natureId!)",
+            "nature_category":"\(incident.natureCategory!)",
+            "time":"\(incident.time!)",
+            "date":"\(incident.date!)",
+            "location":"\(incident.location!)",
+            "activity":"\(incident.activity!)",
+            "user_id":"\(incident.userId!)",
+            "company_id":"\(incident.companyId!)",
+            "image":"",
+            "username":"\(username)",
+            "password":"\(password)"
+        ]
+        
+        let boundary = generateBoundaryString()
+        let img:UIImage = UIImage()
+        
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        let imageData = UIImageJPEGRepresentation(img, 0.5)
+        if imageData == nil {return;}
+        
+        request.HTTPBody = createBodyWithParameters(param, filePathKey: "file", imageDataKey: imageData!, boundary: boundary)
+        
+        let task = NSURLSession.sharedSession().dataTaskWithRequest(request)
+        {
+        
+            data, response,error in
+            
+            if error != nil {
+                print("error = \(error)")
+                return
+            }
+            
+            let responseString = NSString(data: data!, encoding: NSUTF8StringEncoding)
+            print("response = > \(responseString)")
+        }
+        
+        task.resume()
+        
+    }
+    
+    func createBodyWithParameters(parameters:[String:String]?, filePathKey:String!, imageDataKey:NSData, boundary:String)->NSData{
+    
+            let body = NSMutableData()
+            let filename = "test.jpg"
+            let mimetype = "image/jpg"
+        
+            body.appendString("--\(boundary)\r\n")
+            body.appendString("Content-Disposition:form-data; name=\"\(filePathKey!)\";filename=\"\(filename)\"\r\n")
+            body.appendString("Content-Type:\(mimetype)\r\n\r\n")
+            body.appendData(imageDataKey)
+            body.appendString("\r\n")
+        
+        
+        if parameters != nil {
+            for(key, value) in parameters!{
+                body.appendString("--\(boundary)\r\n")
+                body.appendString("Content-Disposition:form-data; name=\"\(key)\"")
+                body.appendString("\(value)\r\n")
+            }
+        }
+        
+        body.appendString("--\(boundary)\r\n")
+        
+        return body
+    }
+    
+    func generateBoundaryString()->String{
+        return "Boundary-\(NSUUID().UUIDString)"
+    }
 
+}
 
+extension NSMutableData{
+
+    func appendString(string: String){
+        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
+        appendData(data!)
+    }
 }
