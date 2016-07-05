@@ -27,9 +27,12 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
     
     // MARK:- Incident Variables
     var incident : Incident? = nil
+    var imgPassedValue = UIImage()
     var selectedNature = ""
     var parentMenu:[String] = ["Safety","Environment","Health","Security"]
     let commonUtil:CommonUtils = CommonUtils.sharedInstance
+    
+    var imagesDirectoryPath:String!
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -45,6 +48,8 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
             subdomain = userPref.valueForKey("subdomain") as! String
            
         }
+        
+        
         
         /*
          save image location in core data
@@ -62,6 +67,21 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
         let getNatureVar = getNatureIds(selectedNature)
         if(incident != nil){
             
+            let currentFilename = "\(NSUUID().UUIDString).jpg"
+            let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+            let documentDirectoryPath:String = paths[0]
+            imagesDirectoryPath = documentDirectoryPath.stringByAppendingString("/Ehss")
+            
+            let fullPath = "\(imagesDirectoryPath)/\(currentFilename)"
+            if let data = UIImageJPEGRepresentation(imgPassedValue, 0.5){
+                let success = NSFileManager.defaultManager().createFileAtPath(imagesDirectoryPath, contents: data, attributes: nil)
+                print("\(success)save image success Path:=> \(fullPath)")
+            }else{
+                print("error creating image")
+            }
+            
+            print("current file name \(currentFilename)")
+            
             //generate id
             newIncident.setValue(CoreDataUtility.getIncrementedId("Noi"), forKey: "id")
             newIncident.setValue(incident!.departmentId!, forKey: "department")
@@ -70,6 +90,7 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
             newIncident.setValue(getNatureVar.1, forKey: "nature_category")
             newIncident.setValue(incident!.time!, forKey: "time")
             newIncident.setValue(incident!.date!, forKey: "date")
+            newIncident.setValue("\(currentFilename)", forKey: "image")
             newIncident.setValue(incident!.location!, forKey: "location") // load camera image
             newIncident.setValue(incident!.description!, forKey: "desc")
             newIncident.setValue(incident!.activity!, forKey: "activity")
@@ -80,6 +101,7 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
             
             do{
                 try context.save()
+                
                 
             }catch _{
             
@@ -114,12 +136,34 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
         print(inc.activity)
         
         
-        requestMultipartForm(inc)
+        requestMultipartForm(inc, image: imgPassedValue)
         
         print("mutipart form has been called!")
         
        //saveOnline(inc)
         print("<=======>")
+    }
+    
+    
+    //MARK:- Create Directory for INciddents
+    func createFolder(){
+        let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+        let documentDirectoryPath:String = paths[0]
+        imagesDirectoryPath = documentDirectoryPath.stringByAppendingString("/Ehss")
+        var objCBool:ObjCBool = true
+        
+        let isExist = NSFileManager.defaultManager().fileExistsAtPath(imagesDirectoryPath,isDirectory: &objCBool)
+        
+        if isExist == false {
+            do{
+                try NSFileManager.defaultManager().createDirectoryAtPath(imagesDirectoryPath, withIntermediateDirectories: true, attributes: nil)
+                print("folder created ")
+            }catch{
+            
+            }
+        }else{
+            print("something went wrong while creating folder for incident")
+        }
     }
     
     
@@ -156,6 +200,7 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
             print("params=> \(key): \(value)")
         }
         
+        /*
         do{
             request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(params, options: [])
             request.addValue("\(params.count)", forHTTPHeaderField: "Content-Length")
@@ -188,7 +233,7 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
         
         }catch{
             request.HTTPBody = nil
-        }
+        } */
         
     }
     
@@ -233,6 +278,7 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
     override func viewDidLoad() {
         super.viewDidLoad()
         
+     
         
         if (incident != nil){
             
@@ -261,6 +307,9 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
         
         self.setInitialDataSource(numberOfRowParents: 4, numberOfRowChildPerParent: 3)
         self.lastCellExpanded = NoCellExpanded
+        
+        
+        createFolder()
     }
     
     
@@ -671,7 +720,7 @@ extension AccordionMenuTableViewController {
 
 extension AccordionMenuTableViewController{
     
-    func requestMultipartForm( incident:Incident){
+    func requestMultipartForm( incident:Incident , image:UIImage){
         let cutil:CommonUtils = CommonUtils.sharedInstance
         ///mobile/ios/save_noi
         let myURL = NSURL(string: "https://\(cutil.getDomain()).ehss.net/mobile/ios/save_noi")
@@ -721,7 +770,6 @@ extension AccordionMenuTableViewController{
             "activity":"\(incident.activity!)",
             "user_id":"\(incident.userId!)",
             "company_id":"\(incident.companyId!)",
-            "image":"",
             "username":"\(username)",
             "password":"\(password)"
         ]
@@ -729,11 +777,16 @@ extension AccordionMenuTableViewController{
         let boundary = generateBoundaryString()
         let img:UIImage = UIImage()
         
+        
+        for (key, value) in param{
+            print("\(key):\(value)")
+        }
+        
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         
         
-        let imageData = UIImageJPEGRepresentation(img, 0.5)
-        //if imageData == nil {return;}
+        let imageData = UIImageJPEGRepresentation(image, 0.5)
+        if imageData == nil {return;}
         
         request.HTTPBody = createBodyWithParameters(param, filePathKey: "file", imageDataKey: imageData!, boundary: boundary)
                

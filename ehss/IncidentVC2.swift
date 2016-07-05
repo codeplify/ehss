@@ -84,16 +84,18 @@ class IncidentVC2: UIViewController,UITextFieldDelegate,UIImagePickerControllerD
         
         
         if incidentId > 0 {
-            Alert.show("ID", message: "Id \(self.incidentId)", vc: self)
+            //Alert.show("ID", message: "Id \(self.incidentId)", vc: self)
             
             let inc:Incident = CoreDataUtility.getIncident(self.incidentId)
             txtDescription.text = inc.description
             txtActivity.text = inc.activity
             txtCompany.text = CoreDataUtility.getCompany(self.incidentId)
             txtDepartment.text = CoreDataUtility.getDepartment(self.incidentId)
+            print("description: \(inc.description)")
+            print("image: \(inc.image)")
             
+            Alert.show("get image", message: "\(inc.image)", vc: self)
         }
-        
         
         txtDate.text = commonUtils.currentDate()
         txtTime.text = commonUtils.currentTime()
@@ -223,6 +225,7 @@ class IncidentVC2: UIViewController,UITextFieldDelegate,UIImagePickerControllerD
         let activity = txtActivity.text! as String
         let description = txtDescription.text! as String
         let location = getLocation(txtLocation.text! as String)
+        let imgPassed = imgView.image
         
         
         
@@ -234,7 +237,7 @@ class IncidentVC2: UIViewController,UITextFieldDelegate,UIImagePickerControllerD
         
             secondTab.transferValue = "loey agdan"
             secondTab.incident = incident
-        
+            secondTab.imgPassedValue = imgPassed!
         
         self.tabBarController?.selectedIndex = 1
             

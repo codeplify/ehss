@@ -78,9 +78,10 @@ class CoreDataUtility: NSObject {
                 let natureId = result[0].valueForKey("nature") as! Int
                 let location = result[0].valueForKey("location") as! Int
                 let natureCat = result[0].valueForKey("nature_category") as! Int
+                let imageName = result[0].valueForKey("image") as! String
                 
                 
-                let inc = Incident(userId: id, date: date, time: time, companyId: companyId, departmentId: department, activity: activity, description: description, natureId: natureId, location: location, natureCat: natureCat, image: "")
+                let inc = Incident(userId: id, date: date, time: time, companyId: companyId, departmentId: department, activity: activity, description: description, natureId: natureId, location: location, natureCat: natureCat, image: imageName)
                 
                 incident = inc
             }
