@@ -9,13 +9,16 @@
 import UIKit
 import CoreData
 
+// MARK: Unused protocol delegate
 protocol IncidentDelegate {
     func incidentCarrier(incident: Incident)
 }
 
-class IncidentVC2: UIViewController,UITextFieldDelegate {
+class IncidentVC2: UIViewController,UITextFieldDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate {
 
     
+    @IBOutlet weak var btnGetImage: UIButton!
+    @IBOutlet weak var imgView: UIImageView!
     var incidentId = 0
     let commonUtils = CommonUtils.sharedInstance
     
@@ -25,13 +28,14 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
     }
     @IBOutlet weak var btnCamera: UIButton!
     
+    
+    // MARK:- Variable Declaration
     var popDatePicker:PopDatePicker?
     var popLocationPicker:PopLocationPicker?
     var popDepartmentPicker:PopDeptPicker?
     var popCompanyPicker:PopCompanyPicker?
     
     var userPref = NSUserDefaults()
-    
     
     @IBOutlet weak var txtDate: UITextField!
     @IBOutlet weak var txtTime: UITextField!
@@ -46,6 +50,34 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
     @IBOutlet weak var lblDate: UILabel!
 
     var delegate:IncidentDelegate? = nil
+    
+    
+    // MARK:-Pick Image using image picker
+    @IBAction func btnGetImageTapped(sender: AnyObject) {
+        let picker = UIImagePickerController()
+            picker.delegate = self
+            picker.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+        
+        self.presentViewController(picker, animated: true, completion: nil)
+        
+    }
+    
+    
+    // MARK: Image picker Delegate 1
+    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    // MARK: Image picker Delegate 2
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+        let chosenImage = info[UIImagePickerControllerOriginalImage] as! UIImage
+        
+        imgView.contentMode = .ScaleAspectFit
+        imgView.image = chosenImage
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    // MARK:- Onload of View Controller
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -85,12 +117,16 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
         
     }
     
+    // MARK: Popup up view combo box required!
+    
     func resign(){
         txtDate.resignFirstResponder()
         txtLocation.resignFirstResponder()
         txtDepartment.resignFirstResponder()
         txtCompany.resignFirstResponder()
     }
+    
+    // MARK: Popup view picker controller required!
     func textFieldShouldBeginEditing(textField: UITextField)->Bool{
         if(textField === txtDate){
             resign()
@@ -164,16 +200,6 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
         }
     }
     
-    
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-    func incidentCarrier(incident: Incident){
-    
-    }
 
     @IBAction func goNature(sender: UIButton) {
         
@@ -214,12 +240,12 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
             
         
        }
-        
-        
-
-        
     }
     
+}
+
+// MARK:- Utility functions
+extension IncidentVC2{
     func getCompanyId(let strCompany:String)->Int{
         var id:Int = 0
         
@@ -283,34 +309,34 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
         }
         
         return id
-
+        
     }
     
     func validate()->Bool{
-    
+        
         var ret:Bool
         
         if txtDate.text == "" {
             Alert.show("Error", message: "Date is required", vc: self)
             ret = false
         }
-        
+            
         else if txtTime.text == "" {
             Alert.show("Error", message: "Time is required", vc: self)
             ret = false
         }
-        
+            
         else if txtLocation.text == "" {
             Alert.show("Error", message: "Location is required", vc: self)
             ret = false
         }
-        
+            
         else if txtCompany.text == "" {
             
             Alert.show("Error", message: "Company is required", vc: self)
             ret = false
         }
-        
+            
         else if txtDepartment.text == "" {
             Alert.show("Error", message: "Department is required", vc: self)
             ret = false
@@ -323,7 +349,5 @@ class IncidentVC2: UIViewController,UITextFieldDelegate {
         return ret
         
     }
-    
-    
-    
+
 }

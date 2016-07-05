@@ -5,6 +5,9 @@ import CoreData
 
 class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     
+    // MARK:- Image Directory properties
+    var imagesDirectoryPath:String!
+    
     
     // MARK:- Property Delegates Declaration
     
@@ -75,6 +78,7 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         myPickerController.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
         
         self.presentViewController(myPickerController, animated: true, completion: nil)
+        
 
     }
     
@@ -91,7 +95,11 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         
         imgAttachment.contentMode = .ScaleAspectFit
         imgAttachment.image = chosenImage
+        
+        
         dismissViewControllerAnimated(true, completion: nil)
+        
+        
     }
     
 
@@ -156,7 +164,22 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
                     let name = result[0].valueForKey("name") as! String
                     let type = result[0].valueForKey("type") as! Int
                     let user_id = result[0].valueForKey("user_id") as! Int
+                    let imageName = result[0].valueForKey("image") as! String
                     
+                    /*
+                     let data = NSFileManager.defaultManager().contentsAtPath(imagesDirectoryPath.stringByAppendingString("/\(image)"))
+                     */
+                     
+                     let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+                     let documentDirectoryPath:String = paths[0]
+                     imagesDirectoryPath = documentDirectoryPath.stringByAppendingString("/Ehss")
+                    
+                    
+                    print("image name \(imagesDirectoryPath)/\(imageName)")
+                    
+                    let data = NSFileManager.defaultManager().contentsAtPath("\(imagesDirectoryPath)/\(imageName)")
+                    let imgLoad:UIImage = UIImage(data: data!)!
+                    imgAttachment.image = imgLoad
                     
                     hazardDescription.text = description
                     txtCompany.text = CoreDataUtility.getCompany(company_id)
@@ -169,10 +192,9 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
                     txtHazardImpact2.text = CoreDataUtility.getHazardImpact(type)
                     
                     
-                    //Singleton
+                    //MARK:-Core Data Singleton
                     
                     let coreData = CoreDataUtility.sharedInstance
-                    
                     
                     if CoreDataUtility.isSync(hazardId, entity: "Hazard", comparator: "id") {
                         
@@ -185,23 +207,6 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
                         txtHazardImpact2.enabled = false
                         txtLocation.enabled = false
                         hazardName.enabled = false
-                        
-                        
-                        /*
-                         
-                        var hazard:Hazard = Hazard()
-                        
-                        hazard.hazardDescription = description
-                        hazard.company = company_id
-                        hazard.department = department
-                        hazard.date = date
-                        hazard.hazardType = hazard_type
-                        hazard.hazardImpact = impact
-                        hazard.location = location
-                        hazard.hazardName = name
-                        hazard.hazardImpact2 = type
-                        
-                         */
                         
                     }
                     
@@ -281,16 +286,35 @@ class hazardVC: UIViewController,UITextFieldDelegate, UIImagePickerControllerDel
         //hazardName.delegate = self
         //hazardDescription.delegate = self
         
+        createFolder()
+        
     }
     
+    
+    //MARK:- Create Directory folder for ehss
+    func createFolder(){
+        let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+        let documentDirectoryPath:String = paths[0]
+        imagesDirectoryPath = documentDirectoryPath.stringByAppendingString("/Ehss")
+        var objcBool:ObjCBool = true
+        let isExist = NSFileManager.defaultManager().fileExistsAtPath(imagesDirectoryPath, isDirectory: &objcBool)
+        if isExist == false {
+            do{
+                try NSFileManager.defaultManager().createDirectoryAtPath(imagesDirectoryPath, withIntermediateDirectories: true, attributes: nil)
+                print("ehss folder is created")
+            }catch{
+            
+            }
+        }else {
+            print("Something went wrong while creating folder")
+        }
+        
+    }
 
     
     var kbHeight:CGFloat!
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+ 
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
@@ -421,8 +445,6 @@ extension hazardVC{
         
         //convert integer value to string
         
-        
-        
         var userId:Int = 0
         var imageAtt:String = ""
         var username:String = ""
@@ -449,6 +471,40 @@ extension hazardVC{
         
         let base64String = imageData?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions(rawValue: 0))
         
+        let currentFilename:String = "\(NSUUID().UUIDString).jpg"
+        
+        /*
+         var imagePath = NSDate().description
+         imagePath = imagePath.stringByReplacingOccurrencesOfString(" ", withString: "")
+         imagePath = imagesDirectoryPath.stringByAppendingString("/\(imagePath).png")
+         let data = UIImagePNGRepresentation(image)
+         let success = NSFileManager.defaultManager().createFileAtPath(imagePath, contents: data, attributes: nil)
+        
+         func saveImageToDocuments(image:UIImage, fileName:String)->Bool{
+         if let data = UIImageJPEGRepresentation(image, 0.5){
+         let filename = getDocumentsDirectory().stringByAppendingPathComponent(fileName)
+         data.writeToFile(filename, atomically: true)
+         return true
+         }else{
+         return false
+         }
+         }
+
+         
+         */
+        
+        let fullPath = "\(imagesDirectoryPath)/\(currentFilename)"
+        
+        if let data = UIImageJPEGRepresentation(imgAttachment.image!, 0.5)
+        {
+            let success = NSFileManager.defaultManager().createFileAtPath(fullPath, contents: data, attributes: nil)
+            print("\(success): Path=> \(fullPath)")
+        }else{
+            print("Error creating image")
+        }
+        
+        
+        
         //newHazard.setValue(newHazard.objectID, forKey: "id")
         newHazard.setValue(CoreDataUtility.getIncrementedId("Hazard"), forKey: "id")
         newHazard.setValue(h.company, forKey: "company_id")
@@ -458,7 +514,7 @@ extension hazardVC{
         newHazard.setValue(subdomain, forKey: "domain") //get from shared preference
         newHazard.setValue(h.hazardType, forKey: "hazard_type")
         //newHazard.setValue(, forKey: "id") // default or autocreate
-        newHazard.setValue(base64String, forKey: "image") // load camera image
+        newHazard.setValue("\(currentFilename)", forKey: "image") // load camera image
         newHazard.setValue(h.hazardImpact, forKey: "impact")
         newHazard.setValue(h.location, forKey: "location")
         newHazard.setValue(hazardName.text, forKey: "name")
@@ -482,17 +538,14 @@ extension hazardVC{
         print("impact: \(h.hazardImpact)")
         print("type: \(h.hazardImpact2) ")
         print("user_id: \(userId)")
-        print("===========save local ends")
-        
-        
-        
-        
-        
+        print("===========save local ends==========")
         // redo later
         
         do {
             try context.save()
+            
         } catch _ {
+            
         }
         
         let formatter = NSDateFormatter()
@@ -508,7 +561,12 @@ extension hazardVC{
         
         //print("Saved => \(newHazard)")
         
+        if   saveImageToDocuments(imgAttachment.image!, fileName: currentFilename) {
+            Alert.show("Success", message: "has saved \(getDocumentsDirectory())", vc: self)
         
+        }else{
+            Alert.show("Error saving", message: "has not saved", vc: self)
+        }
         
         imageAtt = base64String!
         
@@ -547,8 +605,6 @@ extension hazardVC{
         }
         
         let paramLength = "\(postString.characters.count)"
-        
-        
         
         
         //let err:NSError?
@@ -1148,18 +1204,47 @@ extension hazardVC{
 
 }
 
-
-// MARK:- Mutable Data Extension
-
-extension NSMutableData{
-    func appendString(string: String){
-        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
-        appendData(data!)
+//MARK:-Image functions
+extension hazardVC{
+    
+    //MARK: get documents directory
+    
+    func getDocumentsDirectory()->NSString{
+        let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+        let documentDirectory = paths[0]
+        return documentDirectory
     }
-
+    
+    //MARK: Write JPEG image
+    func saveImageToDocuments(image:UIImage, fileName:String)->Bool{
+        if let data = UIImageJPEGRepresentation(image, 0.5){
+            let filename = getDocumentsDirectory().stringByAppendingPathComponent(fileName)
+            data.writeToFile(filename, atomically: true)
+            return true
+        }else{
+            return false
+        }
+    }
+    
+    //MARK: Write PNG image
+    /*
+     if let image = UIImage(named: "example.png") {
+        if let data = UIImagePNGRepresentation(image) {
+            let filename = getDocumentsDirectory().stringByAppendingPathComponent("copy.png")
+            data.writeToFile(filename, atomically: true)
+        }
+     }
+     */
+    
 }
 
-
+// MARK:- Mutable Data Extension
+extension NSMutableData{
+    func appendString(string: String){
+        let data = string.dataUsingEncoding(NSUTF8StringEncoding,allowLossyConversion: true)
+        appendData(data!)
+    }
+}
 
 
 

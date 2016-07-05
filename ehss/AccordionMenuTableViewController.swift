@@ -6,9 +6,17 @@
 //  Copyright © 2016 AgdanL. All rights reserved.
 //
 
+/*******************
+ *
+ * Add image value to send that will be passed by first tab
+ *
+ ***************************/
+
 import UIKit
 import CoreData
 
+
+// MARK:- Global Declaration
 var userPref = NSUserDefaults()
 var username = ""
 var password = ""
@@ -18,10 +26,10 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
     
     
     // MARK:- Incident Variables
-    
     var incident : Incident? = nil
     var selectedNature = ""
     var parentMenu:[String] = ["Safety","Environment","Health","Security"]
+    let commonUtil:CommonUtils = CommonUtils.sharedInstance
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -37,6 +45,16 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
             subdomain = userPref.valueForKey("subdomain") as! String
            
         }
+        
+        /*
+         save image location in core data
+         
+         let documentsDirectory = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first as! String
+         // self.fileName is whatever the filename that you need to append to base directory here.
+         let path = documentsDirectory.stringByAppendingPathComponent(self.fileName)
+         let success = data.writeToFile(path, atomically: true)
+         if !success { // handle error }
+         */
         
         let AppDel:AppDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
         let context:NSManagedObjectContext = AppDel.managedObjectContext!
@@ -62,12 +80,13 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
             
             do{
                 try context.save()
+                
             }catch _{
             
             }
         }
         
-        let commonUtil:CommonUtils = CommonUtils.sharedInstance
+       /*
         
         print("<===============Parameter to send===========>")
         
@@ -84,15 +103,23 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
         print("username: \(username)")
         print("password: \(commonUtil.currentPassword())")
         
-        print("<=======>")
+        */
         
+        // MARK: Declaration incident to send!
         
         let inc:Incident = Incident(userId: CoreDataUtility.getUserId(username), date: incident!.date!, time: incident!.time!, companyId: incident!.companyId!, departmentId: incident!.departmentId!, activity: incident!.activity!, description: incident!.description!, natureId: getNatureVar.0, location: incident!.location!, natureCat: getNatureVar.1, image: "")
         
         
+        //passed string data
+        print(inc.activity)
+        
+        
+        requestMultipartForm(inc)
+        
+        print("mutipart form has been called!")
         
        //saveOnline(inc)
-        
+        print("<=======>")
     }
     
     
@@ -173,7 +200,7 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
     
     
     
-    //MARK: Collapsable table view in ios swift
+    //MARK: Collapsable table view in nature generated
     
     var transferValue:String = ""
     var childList1:[String] = [String]()
@@ -235,6 +262,8 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
         self.setInitialDataSource(numberOfRowParents: 4, numberOfRowChildPerParent: 3)
         self.lastCellExpanded = NoCellExpanded
     }
+    
+    
     
     func getNatureIds(let value: String) -> (Int, Int){
         var id:Int = 0
@@ -350,7 +379,7 @@ class AccordionMenuTableViewController: UIViewController, UITableViewDataSource,
     }
     
     
-    //MARK:- parts of collapsible table view 1
+//MARK:- parts of collapsible table view 1
     private func setInitialDataSource(numberOfRowParents parents: Int, numberOfRowChildPerParent childs: Int) {
         
         // Set the total of cells initially.
@@ -638,30 +667,43 @@ extension AccordionMenuTableViewController {
     }
 }
 
+
+
 extension AccordionMenuTableViewController{
     
-    func requestMulipartForm(let incident:Incident){
+    func requestMultipartForm( incident:Incident){
         let cutil:CommonUtils = CommonUtils.sharedInstance
-        let myURL = NSURL(string: "https://\(cutil.getDomain()).ehss.net/mobile/ios/save_incident")
+        ///mobile/ios/save_noi
+        let myURL = NSURL(string: "https://\(cutil.getDomain()).ehss.net/mobile/ios/save_noi")
+        
+        print("https://\(cutil.getDomain()).ehss.net/mobile/ios/save_noi")
+        
         let request = NSMutableURLRequest(URL: myURL!)
         request.HTTPMethod = "POST"
         
         
         /*
          
-         "department":"\(incident.departmentId)",
-         "description":"\(incident.description)",
-         "nature":"\(incident.natureId)",
-         "nature_category":"\(incident.natureCategory)",
-         "time":"\(incident.time)",
-         "date":"\(incident.date)",
-         "location":"\(incident.location)",
-         "activity":"\(incident.activity)",
-         "user_id":"\(incident.userId)",
-         "company_id":"\(incident.companyId)",
-         "image":"\(incident.image)",
-         "username":"\(username)",
-         "password":"\(password)"
+         $n->notifier_id = $user_id;
+         $n->notifier_name = Helper::cleanName($notifier->name);
+         $n->notifier_company = $notifier->company;
+         $n->notifier_department = $notifier->department;
+         $n->notifier_section = $notifier->section;
+         $n->notifier_designation = $notifier->designation;
+         $n->notifier_home_phone = $notifier->home_phone;
+         $n->notifier_mobile_phone = $notifier->mobile_phone;
+         
+         $n->department_id = $department;
+         $n->company_id = $company;
+         $n->description = $description;
+         $n->nature_id = $nature_id;
+         $n->nature_category = $nature;
+         $n->occurence_date = Helper::dateFormat(strtotime($date));
+         $n->location_id = $location;
+         $n->activity = $activity;
+         $n->occurence_time = Helper::militaryTime($time);
+         $n->notification_code = $uid;
+         
        */
         
         
@@ -688,15 +730,18 @@ extension AccordionMenuTableViewController{
         let img:UIImage = UIImage()
         
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        
         let imageData = UIImageJPEGRepresentation(img, 0.5)
-        if imageData == nil {return;}
+        //if imageData == nil {return;}
         
         request.HTTPBody = createBodyWithParameters(param, filePathKey: "file", imageDataKey: imageData!, boundary: boundary)
-        
-        let task = NSURLSession.sharedSession().dataTaskWithRequest(request)
+               
+        let task2 = NSURLSession.sharedSession().dataTaskWithRequest(request)
         {
-        
             data, response,error in
+            
+            print("Task started =====>")
             
             if error != nil {
                 print("error = \(error)")
@@ -707,8 +752,7 @@ extension AccordionMenuTableViewController{
             print("response = > \(responseString)")
         }
         
-        task.resume()
-        
+        task2.resume()
     }
     
     func createBodyWithParameters(parameters:[String:String]?, filePathKey:String!, imageDataKey:NSData, boundary:String)->NSData{
@@ -717,18 +761,30 @@ extension AccordionMenuTableViewController{
             let filename = "test.jpg"
             let mimetype = "image/jpg"
         
-            body.appendString("--\(boundary)\r\n")
-            body.appendString("Content-Disposition:form-data; name=\"\(filePathKey!)\";filename=\"\(filename)\"\r\n")
-            body.appendString("Content-Type:\(mimetype)\r\n\r\n")
+            body.appendStringData("--\(boundary)\r\n")
+            body.appendStringData("Content-Disposition:form-data; name=\"\(filePathKey!)\";filename=\"\(filename)\"\r\n")
+            body.appendStringData("Content-Type:\(mimetype)\r\n\r\n")
             body.appendData(imageDataKey)
-            body.appendString("\r\n")
+            body.appendStringData("\r\n")
         
+        
+            print("--\(boundary)\r\n")
+            print("Content-Disposition:form-data; name=\"\(filePathKey!)\";filename=\"\(filename)\"\r\n")
+            print("Content-Type:\(mimetype)\r\n\r\n")
+            print("Content-Type:\(mimetype)\r\n\r\n")
+            print("\(imageDataKey)")
+            print("\r\n")
         
         if parameters != nil {
             for(key, value) in parameters!{
-                body.appendString("--\(boundary)\r\n")
-                body.appendString("Content-Disposition:form-data; name=\"\(key)\"")
-                body.appendString("\(value)\r\n")
+                body.appendStringData("--\(boundary)\r\n")
+                body.appendStringData("Content-Disposition:form-data; name=\"\(key)\"")
+                body.appendStringData("\(value)\r\n")
+                
+                
+                print("--\(boundary)\r\n")
+                print("Content-Disposition:form-data; name=\"\(key)\"")
+                print("\(value)\r\n")
             }
         }
         
@@ -743,10 +799,13 @@ extension AccordionMenuTableViewController{
 
 }
 
-extension NSMutableData{
 
-    func appendString(string: String){
-        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
+ extension NSMutableData{
+    func appendStringData(string: String){
+            let data = string.dataUsingEncoding(NSUTF8StringEncoding,allowLossyConversion: true)
         appendData(data!)
     }
-}
+ }
+ 
+
+
